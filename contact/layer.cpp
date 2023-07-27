@@ -7,6 +7,7 @@
 #include "OdeSolver.h"
 #include "layer.hpp"
 
+const complex<double> I = { 0,1 };
 
 
 vector<complex<double>> layer::function_and_derivative(complex<double> alpha) const {
@@ -105,7 +106,7 @@ OdeSolver<complex<double>> layer::bigger_system(complex<double> alpha) const
 	};
 }
 
-complex<double> layer::num1(OdeSolver<complex<double>>& smaller, double x2, 
+complex<double> layer::num1(OdeSolver<complex<double>>& smaller, double x2,
 	double xi_2) const
 {
 	const auto sol1 = smaller.solve(0, 1, { 1, 0 });
@@ -160,6 +161,18 @@ complex<double> layer::right_part(double xi_1, double xi_2) const {
 		result += term;
 	} while (abs(term) > _tolerance && n < _roots.size());
 	return I * result;
+}
+
+complex<double> layer::b_constant(double uu) const
+{
+	complex<double> result = { 0,0 };
+	for (size_t i = 0; i < _roots.size(); i++)
+	{
+		const complex<double> alpha = _roots[i];
+		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 });
+		result += u.front() * exp(I * alpha * uu) / alpha / _residues[i];
+	}
+	return result;
 }
 
 layer::layer(const function<double(double)>& mu,

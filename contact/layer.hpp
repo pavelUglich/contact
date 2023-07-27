@@ -112,6 +112,8 @@ public:
 	complex<double> right_part(double xi_1, double xi_2) const;
 
 
+	complex<double> b_constant(double uu) const;
+
 };
 #endif /* layer_hpp */
 
