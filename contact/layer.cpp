@@ -7,7 +7,7 @@
 #include "OdeSolver.h"
 #include "layer.hpp"
 
-const complex<double> I = { 0,1 };
+//const complex<double> I = { 0,1 };
 
 
 vector<complex<double>> layer::function_and_derivative(complex<double> alpha) const {
@@ -170,10 +170,41 @@ complex<double> layer::b_constant(double uu) const
 	{
 		const complex<double> alpha = _roots[i];
 		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 });
-		result += u.front() * exp(I * alpha * uu) / alpha / _residues[i];
+		const auto term = u.front() * exp(I * alpha * uu) / alpha / _residues[i];
+		result += term;
+		if (abs(term) < _tolerance)
+		{
+			break;
+		}
 	}
 	return result;
 }
+
+vector<vector<complex<double>>> layer::matrix(double a, size_t size) const
+{
+	const double h = 2 * a / size;
+	vector<complex<double>> bb(size + 1);
+	bb[0] = b_constant(0);
+	double x = h / 2;
+	for (size_t i = 0; i < size; i++)
+	{
+		bb[i + 1] = b_constant(x);
+		x += h / 2;
+	}
+	vector<vector<complex<double>>> result(size, vector<complex<double>>(size));
+	for (size_t i = 0; i < size; i++)
+	{
+		for (size_t ii = i; ii < size; ii++)
+		{
+			result[i][ii] = bb[ii - i + 1] - bb[ii - i];
+			result[ii][i] = result[i][ii];
+		}
+	}
+	return result;
+}
+
+
+
 
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, double kappa, size_t roots_number,

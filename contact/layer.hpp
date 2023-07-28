@@ -111,8 +111,20 @@ public:
 
 	complex<double> right_part(double xi_1, double xi_2) const;
 
-
+	/// <summary>
+	/// вспомогательная функция B для расчёта ядра
+	/// </summary>
+	/// <param name="uu">аргумент B</param>
+	/// <returns></returns>
 	complex<double> b_constant(double uu) const;
+
+	/// <summary>
+	/// матрица для решения контактной задачи
+	/// </summary>
+	/// <param name="a"></param>
+	/// <returns></returns>
+	vector<vector<complex<double>>> matrix(double a, size_t size) const;
+
 
 };
 #endif /* layer_hpp */
