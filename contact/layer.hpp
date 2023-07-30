@@ -14,7 +14,7 @@
 #include"OdeSolver.h"
 
 using namespace std;
-const size_t MAX_ROOTS_NUMBER = 100;
+const size_t MAX_ROOTS_NUMBER = 50;
 const complex<double> I = { 0, 1 };
 
 class layer {

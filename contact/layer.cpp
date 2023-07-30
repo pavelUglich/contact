@@ -43,7 +43,8 @@ void layer::roots(size_t roots_number) {
 		const auto f_b = equation({ b, 0 });
 		if (f_a * f_b < 0) {
 			_roots[counter] = newton_method({ (a + b) / 2,0 });
-			_residues[counter] = function_and_derivative(_roots[counter]).back();
+			const auto fad = function_and_derivative(_roots[counter]);
+			_residues[counter] = fad.back();
 			++counter;
 		}
 		a = b;
@@ -57,7 +58,8 @@ void layer::roots(size_t roots_number) {
 		const auto f_b = equation({ 0, b });
 		if (f_a * f_b < 0) {
 			_roots[counter] = newton_method({ 0, (a + b) / 2 });
-			_residues[counter] = function_and_derivative(_roots[counter]).back();
+			const auto fad = function_and_derivative(_roots[counter]);
+			_residues[counter] = fad.back();
 			++counter;
 		}
 		a = b;
@@ -170,7 +172,7 @@ complex<double> layer::b_constant(double uu) const
 	{
 		const complex<double> alpha = _roots[i];
 		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 });
-		const auto term = u.front() * exp(I * alpha * uu) / alpha / _residues[i];
+		const auto term = u.front() * exp(I * alpha * uu) / alpha * _residues[i];
 		result += term;
 		if (abs(term) < _tolerance)
 		{

@@ -130,6 +130,7 @@
     <ClCompile Include="Integral.cpp" />
     <ClCompile Include="layer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="plots.cpp" />
     <ClCompile Include="vector_ops.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +139,7 @@
     <ClInclude Include="layer.hpp" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="OdeSolver.h" />
+    <ClInclude Include="plots.h" />
     <ClInclude Include="SquareMatrix.h" />
     <ClInclude Include="vector_ops.h" />
   </ItemGroup>
