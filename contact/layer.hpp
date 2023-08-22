@@ -17,6 +17,10 @@ using namespace std;
 const size_t MAX_ROOTS_NUMBER = 50;
 const complex<double> I = { 0, 1 };
 
+/// <summary>
+/// класс - абстрактный. Метод matrix - чисто абстрактный, реализация зависит 
+/// от типа граничного элемента
+/// </summary>
 class layer {
 	// распределения модуля сдвига и плотности
 	function<double(double)> _mu, _rho;
@@ -27,7 +31,6 @@ class layer {
 	// количество корней дисперсионного уравнения
 	vector<complex<double>> _roots;
 	vector<complex<double>> _residues;
-
 
 
 	// точность вычислений
@@ -62,12 +65,6 @@ class layer {
 	/// <param name="roots_number">количество корней</param>
 	void roots(size_t roots_number);
 
-	/// <summary>
-	/// система ОДУ в трансформантах (используем, если производная по \alpha не нужна)
-	/// </summary>
-	/// <param name="alpha">  параметр преобразования Фурье  </param>
-	/// <returns></returns>
-	OdeSolver<complex<double>> smaller_system(complex<double> alpha) const;
 
 	/// <summary>
 	/// система ОДУ в трансформантах (используем, если производная по \alpha нужна)
@@ -78,6 +75,20 @@ class layer {
 
 
 	complex<double> num1(OdeSolver<complex<double>>& smaller, double x2, double xi_2) const;
+protected:
+	/// <summary>
+	/// система ОДУ в трансформантах (используем, если производная по \alpha не нужна)
+	/// </summary>
+	/// <param name="alpha">  параметр преобразования Фурье  </param>
+	/// <returns></returns>
+	OdeSolver<complex<double>> smaller_system(complex<double> alpha) const;
+
+	vector<complex<double>> get_roots() const;
+
+	vector<complex<double>> get_residues() const;
+
+	double get_tolerance() const;
+
 public:
 
 	complex<double> kernel_transformant(complex<double> alpha) const;
@@ -95,7 +106,6 @@ public:
 		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5);
 
 
-	vector<complex<double>> get_roots() const;
 
 	/// <summary>
 	/// фундаментальное решение
@@ -111,19 +121,13 @@ public:
 
 	complex<double> right_part(double xi_1, double xi_2) const;
 
-	/// <summary>
-	/// вспомогательная функция B для расчёта ядра
-	/// </summary>
-	/// <param name="uu">аргумент B</param>
-	/// <returns></returns>
-	complex<double> b_constant(double uu) const;
 
 	/// <summary>
 	/// матрица для решения контактной задачи
 	/// </summary>
 	/// <param name="a"></param>
 	/// <returns></returns>
-	vector<vector<complex<double>>> matrix(double a, size_t size) const;
+	virtual vector<vector<complex<double>>> matrix(double a, size_t size) const = 0;
 
 
 };

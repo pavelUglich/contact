@@ -131,6 +131,16 @@ vector<complex<double>> layer::get_roots() const {
 	return _roots;
 }
 
+vector<complex<double>> layer::get_residues() const
+{
+	return _residues;
+}
+
+double layer::get_tolerance() const
+{
+	return this->_tolerance;
+}
+
 complex<double> layer::fundamental_solution(double x1, double x2, double xi_1,
 	double xi_2) const
 {
@@ -165,6 +175,7 @@ complex<double> layer::right_part(double xi_1, double xi_2) const {
 	return I * result;
 }
 
+/*
 complex<double> layer::b_constant(double uu) const
 {
 	complex<double> result = { 0,0 };
@@ -204,7 +215,7 @@ vector<vector<complex<double>>> layer::matrix(double a, size_t size) const
 	}
 	return result;
 }
-
+*/
 
 
 

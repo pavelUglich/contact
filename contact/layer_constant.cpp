@@ -1,0 +1,50 @@
+#include "layer_constant.h"
+
+complex<double> layer_constant::b_constant(double uu) const
+{
+	complex<double> result = { 0,0 };
+	const auto _roots = this->get_roots();
+	const auto _residues = this->get_roots();
+	const auto _tolerance = this->get_tolerance();
+	for (size_t i = 0; i < _roots.size(); i++)
+	{
+		const complex<double> alpha = _roots[i];
+		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 });
+		const auto term = u.front() * exp(I * alpha * uu) / alpha * _residues[i];
+		result += term;
+		if (abs(term) < _tolerance)
+		{
+			break;
+		}
+	}
+	return result;
+}
+
+layer_constant::layer_constant(const function<double(double)>& mu,
+	const function<double(double)>& rho, double kappa, size_t roots_number, 
+	double tolerance):layer(mu, rho, kappa, roots_number, tolerance)
+{
+}
+
+vector<vector<complex<double>>> layer_constant::matrix(double a, size_t size) const
+{
+	const double h = 2 * a / size;
+	vector<complex<double>> bb(size + 1);
+	bb[0] = b_constant(0);
+	double x = h / 2;
+	for (size_t i = 0; i < size; i++)
+	{
+		bb[i + 1] = b_constant(x);
+		x += h / 2;
+	}
+	vector<vector<complex<double>>> result(size, vector<complex<double>>(size));
+	for (size_t i = 0; i < size; i++)
+	{
+		for (size_t ii = i; ii < size; ii++)
+		{
+			result[i][ii] = bb[ii - i + 1] - bb[ii - i];
+			result[ii][i] = result[i][ii];
+		}
+	}
+	return result;
+}
