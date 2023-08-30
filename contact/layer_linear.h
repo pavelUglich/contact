@@ -1,0 +1,21 @@
+#pragma once
+#include"layer.hpp"
+
+class layer_linear :
+	public layer
+{
+public:
+	/// <summary>
+	/// конструктор
+	/// </summary>
+	/// <param name="mu"> распределение модуля сдвига </param>
+	/// <param name="rho"> распределение плотности </param>
+	/// <param name="kappa"> безразмерная частота колебаний </param>
+	/// <param name="roots_number"> максимальное количество корней </param>
+	/// <param name="tolerance"> точность расчётов </param>
+	layer_linear(const function<double(double)>& mu,
+		const function<double(double)>& rho, double kappa,
+		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5);
+
+};
+

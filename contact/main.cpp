@@ -12,10 +12,7 @@ layer* make_layer(element_type et, const function<double(double)>& mu,
 	switch (et)
 	{
 	case element_type::constant:
-	{
-		layer_constant l = { mu, rho, kappa };
-		return &l;
-	}
+		return new layer_constant(mu, rho, kappa, roots_number, tolerance);
 	case element_type::linear:
 		break;
 	default:
@@ -33,7 +30,7 @@ int main() {
 	layer_constant l = { mu, rho, kappa };
 	size_t size = 20;
 	const double a = 1.0;
-	const auto h = 2 * a / size;
+	const auto h = 2 * a / (double)size;
 	const auto mm = l.matrix(a, size);
 	auto matrix = SquareMatrix<complex<double>>(size, mm);
 	auto sol = matrix.linSolve(vector<complex<double>>(size, { 1,0 }));

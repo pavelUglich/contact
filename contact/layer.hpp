@@ -23,7 +23,8 @@ const complex<double> I = { 0, 1 };
 /// </summary>
 class layer {
 	// распределения модуля сдвига и плотности
-	function<double(double)> _mu, _rho;
+	function<double(double)> _mu;
+	function<double(double)> _rho;
 
 	// частота колебаний (безразмерная)
 	double _kappa;
@@ -129,7 +130,7 @@ public:
 	/// <returns></returns>
 	virtual vector<vector<complex<double>>> matrix(double a, size_t size) const = 0;
 
-
+	virtual ~layer() = default;
 };
 #endif /* layer_hpp */
 

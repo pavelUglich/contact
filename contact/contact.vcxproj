@@ -130,6 +130,7 @@
     <ClCompile Include="Integral.cpp" />
     <ClCompile Include="layer.cpp" />
     <ClCompile Include="layer_constant.cpp" />
+    <ClCompile Include="layer_linear.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="plots.cpp" />
     <ClCompile Include="vector_ops.cpp" />
@@ -139,11 +140,16 @@
     <ClInclude Include="Integral.h" />
     <ClInclude Include="layer.hpp" />
     <ClInclude Include="layer_constant.h" />
+    <ClInclude Include="layer_linear.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="OdeSolver.h" />
     <ClInclude Include="plots.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="SquareMatrix.h" />
     <ClInclude Include="vector_ops.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="contact.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
