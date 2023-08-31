@@ -10,7 +10,7 @@ complex<double> layer_constant::b_constant(double uu) const
 	{
 		const complex<double> alpha = _roots[i];
 		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 });
-		const auto term = u.front() * exp(I * alpha * uu) / alpha * _residues[i];
+		const auto term = u.front() * exp(I * alpha * uu) / alpha / _residues[i];
 		result += term;
 		if (abs(term) < _tolerance)
 		{
@@ -31,7 +31,7 @@ vector<vector<complex<double>>> layer_constant::matrix(double a, size_t size) co
 	const double h = 2 * a / size;
 	vector<complex<double>> bb(size + 1);
 	bb[0] = b_constant(0);
-	double x = h / 2;
+	double x = h / 2; // !!!
 	for (size_t i = 0; i < size; i++)
 	{
 		bb[i + 1] = b_constant(x);
