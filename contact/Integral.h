@@ -20,10 +20,16 @@ const vector<double> eta{ 0.0271524594117540, 0.0622535239386475, 0.095158511682
 
 class Integral
 {
-	function<complex<double>(double)> _integrand;
+	function<complex<double>(complex<double>)> _integrand;
+	double _kappa;
+
+	complex<double> gauss(double a, double b, double x,
+		const function<complex<double>(double)>& contour,
+		const function<complex<double>(double)>& derivative) const;
+
 public:
 	complex<double> evaluate(double x) const;
-	Integral(const function<complex<double>(double)>& integrand) :_integrand(integrand) {}
+	explicit Integral(const function<complex<double>(double)>& integrand) :_integrand(integrand) {}
 	~Integral();
 };
 
