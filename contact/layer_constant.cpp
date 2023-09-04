@@ -28,14 +28,14 @@ layer_constant::layer_constant(const function<double(double)>& mu,
 
 vector<vector<complex<double>>> layer_constant::matrix(double a, size_t size) const
 {
-	const double h = 2 * a / size;
+	const double h = 2 * a / (double)size;
 	vector<complex<double>> bb(size + 1);
 	bb[0] = b_constant(0);
 	double x = h / 2; // !!!
 	for (size_t i = 0; i < size; i++)
 	{
 		bb[i + 1] = b_constant(x);
-		x += h / 2;
+		x += h;
 	}
 	vector<vector<complex<double>>> result(size, vector<complex<double>>(size));
 	for (size_t i = 0; i < size; i++)
@@ -45,6 +45,10 @@ vector<vector<complex<double>>> layer_constant::matrix(double a, size_t size) co
 			result[i][ii] = bb[ii - i + 1] - bb[ii - i];
 			result[ii][i] = result[i][ii];
 		}
+	}
+	for (size_t i = 0; i < result.size(); i++)
+	{
+		result[i][i] *= 2;
 	}
 	return result;
 }
