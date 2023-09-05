@@ -4,6 +4,8 @@
 class layer_constant :
 	public layer
 {
+
+public:
 	/// <summary>
 	/// вспомогательная функция B для расчёта ядра
 	/// </summary>
@@ -11,7 +13,6 @@ class layer_constant :
 	/// <returns></returns>
 	complex<double> b_constant(double uu) const;
 
-public:
 	/// <summary>
 	/// конструктор
 	/// </summary>

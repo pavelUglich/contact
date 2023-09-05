@@ -23,6 +23,22 @@ complex<double> Integral::gauss(double a, double b, double x,
 	return result;
 }
 
+complex<double> Integral::gauss(double a, double b, double x) const
+{
+	const double m = 0.5 * (a + b);
+	const double n = 0.5 * (b - a);
+	complex<double> result;
+	for (size_t i = 0; i < 16; i++)
+	{
+		double y = m + n * xi[i];
+		auto symbol = _integrand(y);
+		symbol *= sin(y * x);
+		result += eta[i] * symbol;
+	}
+	return result;
+}
+
+
 complex<double> Integral::evaluate(double x) const {
 	complex<double> result(0, 0);
 	double delta = _kappa / 10;

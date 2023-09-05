@@ -23,13 +23,15 @@ class Integral
 	function<complex<double>(complex<double>)> _integrand;
 	double _kappa;
 
+	complex<double> gauss(double a, double b, double x) const;
+
 	complex<double> gauss(double a, double b, double x,
 		const function<complex<double>(double)>& contour,
 		const function<complex<double>(double)>& derivative) const;
 
 public:
 	complex<double> evaluate(double x) const;
-	explicit Integral(const function<complex<double>(double)>& integrand) :_integrand(integrand) {}
+	explicit Integral(const function<complex<double>(complex<double>)>& integrand, double kappa) :_integrand(integrand), _kappa(kappa) {}
 	~Integral();
 };
 

@@ -135,7 +135,7 @@ std::vector<T> OdeSolver<T>::solve(double a, double b, const std::vector<T>& ini
 	}
 	double h = b - a;
 	std::vector<T> initials(initial_conditions);
-	while (abs(b - a) > DBL_EPSILON && a < b)
+	while (/*abs(b - a) > DBL_EPSILON &&*/ a < b)
 	{
 		std::vector<T> u_;
 		double r = calculate_the_residual(a, initials, h, u_);
