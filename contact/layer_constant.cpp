@@ -4,7 +4,7 @@ complex<double> layer_constant::b_constant(double uu) const
 {
 	complex<double> result = { 0,0 };
 	const auto _roots = this->get_roots();
-	const auto _residues = this->get_roots();
+	const auto _residues = this->get_residues();
 	const auto _tolerance = this->get_tolerance();
 	for (size_t i = 0; i < _roots.size(); i++)
 	{

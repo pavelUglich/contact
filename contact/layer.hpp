@@ -67,12 +67,7 @@ class layer {
 	void roots(size_t roots_number);
 
 
-	/// <summary>
-	/// система ОДУ в трансформантах (используем, если производная по \alpha нужна)
-	/// </summary>
-	/// <param name="alpha">  параметр преобразования Фурье  </param>
-	/// <returns></returns>
-	OdeSolver<complex<double>> bigger_system(complex<double> alpha) const;
+
 
 
 	complex<double> num1(OdeSolver<complex<double>>& smaller, double x2, double xi_2) const;
@@ -83,6 +78,13 @@ protected:
 	/// <param name="alpha">  параметр преобразования Фурье  </param>
 	/// <returns></returns>
 	OdeSolver<complex<double>> smaller_system(complex<double> alpha) const;
+
+	/// <summary>
+	/// система ОДУ в трансформантах (используем, если производная по \alpha нужна)
+	/// </summary>
+	/// <param name="alpha">  параметр преобразования Фурье  </param>
+	/// <returns></returns>
+	OdeSolver<complex<double>> bigger_system(complex<double> alpha) const;
 
 	vector<complex<double>> get_roots() const;
 

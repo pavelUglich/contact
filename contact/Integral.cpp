@@ -57,7 +57,7 @@ complex<double> Integral::evaluate(double x) const {
 		result += term * 0.5 * segment;
 		x0 += segment;
 	} while (abs(term) > 0.1e-3);//*/
-	return 2.0 * I * result / pi;
+	return I * result / pi;
 }
 
 Integral::~Integral() = default;

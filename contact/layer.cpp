@@ -67,7 +67,6 @@ void layer::roots(size_t roots_number) {
 		if (counter >= _roots.size())
 			break;
 	}
-
 }
 
 OdeSolver<complex<double>> layer::smaller_system(complex<double> alpha) const
