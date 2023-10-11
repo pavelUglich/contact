@@ -25,7 +25,8 @@ layer* make_layer(element_type et, const function<double(double)>& mu,
 
 complex<double> transformant(complex<double> alpha, double _kappa)
 {
-	const auto _mu = [](double x) {return 1.0; };
+	//return 1.0 / alpha;
+	const auto _mu = [](double) {return 1.0; };
 	const auto _rho = [](double) {return 1.0; }; 
 	OdeSolver<complex<double>> os =
 	{
@@ -39,8 +40,8 @@ complex<double> transformant(complex<double> alpha, double _kappa)
 		0.1e-6,
 		RUNGE_KUTTA_FELDBERG
 	};
-	const auto solution = os.solve(0, 1, { 0,exp(-abs(alpha))});
-	return solution.front() / solution.back();
+	const auto solution = os.solve(0, 1, { 0,exp(-abs(alpha)) });
+	return solution.front() / solution.back() / alpha;//*/
 }
 
 
@@ -48,12 +49,12 @@ int main() {
 	const auto mu = [](double x) {return 1.0; };
 	const auto rho = [](double) {return 1.0; };
 	const auto mass = 1.0;// масса штампа
-	const auto kappa = 1.0; // волновое число
+	const auto kappa = 5.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 	//layer_constant l = { mu, rho, kappa };
 	//std::vector<complex<double>> field(20);
-	double x = 0;
 	double h = 1.0 / 20;
+	double x = h / 2;
 
 	/*
 	for (size_t i = 0; i < 20; i++)
@@ -63,16 +64,21 @@ int main() {
 	}
 	plotTheWaveField(h, { {"red", field} }, "1.txt");
 	*/
-	Integral ii([](auto x) {return transformant(x, 1.0); }, 1.0);
-	x = h;
+	Integral ii([=](auto x) {return transformant(x, kappa); }, kappa);
+//	x = h;
 	//double h = 1.0 / 20;
+	layer_constant l = { mu, rho, kappa };
 	std::vector<complex<double>> ff(20);
+	std::vector<complex<double>> ff1(20);
 	for (size_t i = 0; i < 20; i++)
 	{
+		cout << x << "\n";
 		ff[i] = ii.evaluate(x);
+		ff1[i] = I*l.b_constant(x);
 		x += h;
 	}
-	plotTheWaveField(h, { {"red", ff} }, "2.txt");
+
+	plotTheWaveField(h, { {"red", ff}, {"black", ff1}}, "2.txt", h / 2);
 	/*
 	{
 		layer_constant l = { mu, rho, kappa };

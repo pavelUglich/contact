@@ -10,7 +10,7 @@ complex<double> layer_constant::b_constant(double uu) const
 	{
 		const complex<double> alpha = _roots[i];
 		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 });
-		const auto term = u.front() * exp(I * alpha * uu) / alpha / _residues[i];
+		const auto term = u.front() * exp(I * alpha * uu) / _residues[i] / alpha;
 		result += term;
 		if (abs(term) < _tolerance)
 		{
