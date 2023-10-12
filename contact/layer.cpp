@@ -11,7 +11,7 @@
 
 
 vector<complex<double>> layer::function_and_derivative(complex<double> alpha) const {
-	const auto sol1 = bigger_system(alpha).solve(0, 1, { 0,1,0,0 });
+	const auto sol1 = bigger_system(alpha).solve(0, 1, { 0,1,0,0 });//!!!
 	return  { sol1[1], sol1[3] };
 }
 

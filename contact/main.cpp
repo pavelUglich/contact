@@ -62,59 +62,93 @@ complex<double> analytical(double x, double _kappa, double eps = 0.1e-5)
 	return result;
 }
 
+template<class Fun>
+map<double, vector<complex<double>>> dispersionalSet(double theHighestFrequency, Fun rho, Fun mu)
+{
+	map<double, vector<complex<double>>> result;
+	double kappa = 0.1;
+	const double step = 0.05;
+
+	layer_constant l(mu, rho, kappa, 5);
+	auto roots = l.get_roots();
+	while (kappa < theHighestFrequency)
+	{
+		cout << kappa << endl;
+		result[kappa] = roots;
+		kappa += step;
+		l = { mu, rho, kappa, 7 };
+		roots = l.get_roots();
+	}
+	return result;
+}
+
+
+
+void plotTheDispersionalCurves(
+	map<double, vector<complex<double>>>& dispersionSet,
+	const string& fileName)
+{
+	ofstream os(fileName);
+	os << "\\begin{tikzpicture}[scale=1.5]\n";
+	os << "\\begin{axis}[grid]\n";
+	const auto numberOfCurves = dispersionSet.rbegin()->second.size();
+	for (auto& item : dispersionSet) {
+		for (size_t i = 0; i < item.second.size(); ++i) {
+			if (item.second[i].real() < DBL_EPSILON)
+				item.second[i] = { -item.second[i].imag(),0 };
+		}
+		sort(item.second.begin(), item.second.end(),
+			[](auto x, auto y) { return x.real() < y.real(); });
+	}
+	//const auto maxFreq = dispersionSet.rbegin()->first;
+	for (size_t i = 0; i < numberOfCurves; i++) {
+		os << "\\addplot[smooth, black] plot coordinates{\n";
+		for (auto x : dispersionSet) {
+			if (i < x.second.size())
+			{
+				os << "(" << x.second[i].real() << ", " << x.first << ") ";
+			}
+		}
+		os << "};\n";
+	}
+	os << "\\end{axis}\n";
+	os << "\\end{tikzpicture}\n";
+	os.close();
+}
 
 
 int main() {
-	const auto mu = [](double x) {return 1.0; };
-	const auto rho = [](double) {return 1.0; };
+	const auto mu = [](double x) {return 1.0 + x; };
+	const auto rho = [](double x) {return 1.0 + exp(-x); };
 	const auto mass = 1.0;// масса штампа
-	const auto kappa = 1.0; // волновое число
+	const auto kappa = 2.5; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
-	//layer_constant l = { mu, rho, kappa };
-	//std::vector<complex<double>> field(20);
-	double h = 1.0 / 20;
-	double x = h / 2;
-/*
-	Integral ii([=](auto x) {return transformant(x, kappa); }, kappa);
-	layer_constant l = { mu, rho, kappa };
-	std::vector<complex<double>> ff(20);
-	std::vector<complex<double>> ff1(20);
-	for (size_t i = 0; i < 20; i++)
-	{
-		cout << x << "\n";
-		ff1[i] = analytical(x, kappa);//I*l.b_constant(x);
-		ff[i] = l.b_constant(x); //ii.evaluate(x);
-		x += h;
-	}
-
-	plotTheWaveField(h, { {"red", ff}, {"black", ff1}}, "2.txt", h / 2);
-	*/
 	
+	size_t size = 20;
 	{
 		layer_constant l = { mu, rho, kappa };
-		size_t size = 20;
 		const double a = 1.0;
 		const auto h = 2 * a / (double)size;
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size, mm);
 		auto sol = matrix.linSolve(vector<complex<double>>(size, { 1,0 }));
-		//const complex<double> integral_ = h * std::accumulate(sol.begin(), sol.end(), complex<double>());
-		//const auto gamma = (integral_ - tt) / mass / kappa / kappa;
-		//std::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
+		const complex<double> integral_ = h * std::accumulate(sol.begin(), sol.end(), complex<double>());
+		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
+		std::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
 		plotTheWaveField(h, { {"red", sol} }, "1.txt", -a  + h / 2); 
 	}
 	
 	{
 		layer_linear l = { mu, rho, kappa };
-		size_t size = 20;
 		const double a = 1.0;
 		const auto h = 2 * a / (double)size;
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size + 1, mm);
 		auto sol = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
-		//const complex<double> integral_ = h * std::accumulate(sol.begin(), sol.end(), complex<double>());
-		//const auto gamma = (integral_ - tt) / mass / kappa / kappa;
-		//std::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
+		const complex<double> integral_ = h * (std::accumulate(sol.begin() + 1, sol.end() - 1, complex<double>())
+			+ 0.5 * (sol.front() + sol.back()));
+		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
+		std::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
 		plotTheWaveField(h, { {"black", sol} }, "2.txt", -a);
 	}//*/
 	system("pause");

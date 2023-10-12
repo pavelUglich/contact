@@ -9,7 +9,7 @@ complex<double> layer_linear::b_constant(double uu, double h) const
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
 		const complex<double> alpha = _roots[i];
-		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 });
+		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 }); // !!!
 		const auto term = 2.0 * I * u.front() * exp(I * alpha * uu) / alpha
 			/ alpha * (1.0 - cos(alpha * h)) / _residues[i] / h;
 		result += term;
@@ -30,7 +30,7 @@ complex<double> layer_linear::b_diagonal(double h) const
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
 		const complex<double> alpha = _roots[i];
-		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 });
+		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 }); // !!!
 		const auto term = 2.0 * I * u.front() / alpha / alpha
 			* (1.0 + I * alpha * h - exp(I * alpha * h)) / _residues[i] / h;
 		result += term;
@@ -51,7 +51,7 @@ complex<double> layer_linear::b_left(double uu, double h) const
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
 		const complex<double> alpha = _roots[i];
-		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 });
+		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 }); // !!!
 		const auto term = I * u.front() * exp(I * alpha * abs(uu)) / alpha
 			/ alpha * (1.0 - exp(I * alpha * h) + I * alpha * h) / _residues[i] / h;
 		result += term;

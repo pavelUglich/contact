@@ -86,13 +86,13 @@ protected:
 	/// <returns></returns>
 	OdeSolver<complex<double>> bigger_system(complex<double> alpha) const;
 
-	vector<complex<double>> get_roots() const;
 
 	vector<complex<double>> get_residues() const;
 
 	double get_tolerance() const;
 
 public:
+	vector<complex<double>> get_roots() const;
 
 	complex<double> kernel_transformant(complex<double> alpha) const;
 
