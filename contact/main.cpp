@@ -121,13 +121,13 @@ int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
 	const auto mass = 1.0;// масса штампа
-	const auto kappa = 2.5; // волновое число
+	const auto kappa = 5.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 	
-	size_t size = 20;
+	size_t size = 80;
+	const double a = 2.0;
 	{
 		layer_constant l = { mu, rho, kappa };
-		const double a = 1.0;
 		const auto h = 2 * a / (double)size;
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size, mm);
@@ -140,7 +140,6 @@ int main() {
 	
 	{
 		layer_linear l = { mu, rho, kappa };
-		const double a = 1.0;
 		const auto h = 2 * a / (double)size;
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size + 1, mm);
