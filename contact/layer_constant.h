@@ -27,5 +27,8 @@ public:
 
 	vector<vector<complex<double>>> matrix(double a, size_t size) const 
 		override;
+
+	std::complex<double> displacement(double x_1, double x_2,
+		std::vector<std::complex<double>> solution, double a) const override;
 };
 

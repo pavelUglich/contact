@@ -52,3 +52,17 @@ vector<vector<complex<double>>> layer_constant::matrix(double a, size_t size) co
 	}
 	return result;
 }
+
+std::complex<double> layer_constant::displacement(double x_1, double x_2, 
+	std::vector<std::complex<double>> solution, double a) const
+{
+	const auto roots = get_roots();
+	const auto residues = get_residues();
+	std::vector<complex<double>> solutions(roots.size());
+	for (size_t i = 0; i < roots.size(); i++)
+	{
+		const auto numerator = smaller_system(roots[i]).solve(0, x_2, { 0,1 }).front();
+		solutions[i] = numerator / residues[i];
+	}
+	return { 0,0 };
+}

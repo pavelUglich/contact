@@ -109,3 +109,9 @@ vector<vector<complex<double>>> layer_linear::matrix(double a, size_t size) cons
 	}
 	return result;
 }
+
+std::complex<double> layer_linear::displacement(double x_1, double x_2, 
+	std::vector<std::complex<double>> solution, double a) const
+{
+	return {0,0};
+}

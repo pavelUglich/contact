@@ -33,9 +33,9 @@ class layer {
 	vector<complex<double>> _roots;
 	vector<complex<double>> _residues;
 
-
 	// точность вычислений
 	double _tolerance;
+
 
 	/// <summary>
 	/// вспомогательная функция для отыскания значения трансформанты напряжения
@@ -67,10 +67,7 @@ class layer {
 	void roots(size_t roots_number);
 
 
-
-
-
-	complex<double> num1(OdeSolver<complex<double>>& smaller, double x2, double xi_2) const;
+	//complex<double> num1(OdeSolver<complex<double>>& smaller, double x2, double xi_2) const;
 protected:
 	/// <summary>
 	/// система ОДУ в трансформантах (используем, если производная по \alpha не нужна)
@@ -86,14 +83,31 @@ protected:
 	/// <returns></returns>
 	OdeSolver<complex<double>> bigger_system(complex<double> alpha) const;
 
-
+	/// <summary>
+	/// знаметатели вычетов в подынтегральных выражениях
+	/// </summary>
+	/// <returns>вектор комплексных чисел</returns>
 	vector<complex<double>> get_residues() const;
 
+	/// <summary>
+	/// точность расчёта
+	/// </summary>
+	/// <returns>точность</returns>
 	double get_tolerance() const;
 
 public:
+
+	/// <summary>
+	/// найти корни (метод открытый, чтобы осталась возможность построения дисперсионных кривых)
+	/// </summary>
+	/// <returns>вектор комплексных чисел</returns>
 	vector<complex<double>> get_roots() const;
 
+	/// <summary>
+	/// трансформанта ядра
+	/// </summary>
+	/// <param name="alpha"></param>
+	/// <returns></returns>
 	complex<double> kernel_transformant(complex<double> alpha) const;
 
 	/// <summary>
@@ -108,8 +122,6 @@ public:
 		const function<double(double)>& rho, double kappa,
 		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5);
 
-
-
 	/// <summary>
 	/// фундаментальное решение
 	/// </summary>
@@ -118,10 +130,15 @@ public:
 	/// <param name="xi_1"></param>
 	/// <param name="xi_2"></param>
 	/// <returns></returns>
-	complex<double> fundamental_solution(double x1, double x2,
-		double xi_1, double xi_2) const;
+	// complex<double> fundamental_solution(double x1, double x2,
+	// 	double xi_1, double xi_2) const;
 
-
+	/// <summary>
+	/// правая часть интегрального уравнения
+	/// </summary>
+	/// <param name="xi_1"></param>
+	/// <param name="xi_2"></param>
+	/// <returns></returns>
 	complex<double> right_part(double xi_1, double xi_2) const;
 
 
@@ -131,6 +148,18 @@ public:
 	/// <param name="a"></param>
 	/// <returns></returns>
 	virtual vector<vector<complex<double>>> matrix(double a, size_t size) const = 0;
+
+	/// <summary>
+	/// перемещение 
+	/// </summary>
+	/// <param name="x_1">координата x_1</param>
+	/// <param name="x_2">координата x_2</param>
+	/// <param name="solution">решение контактоной задачи</param>
+	/// <param name="a">полуширина зоны контакта</param>
+	/// <returns>перемещение</returns>
+	virtual std::complex<double> displacement(double x_1, double x_2, 
+		std::vector<std::complex<double>> solution, double a) const = 0;
+
 
 	virtual ~layer() = default;
 };

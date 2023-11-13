@@ -34,12 +34,12 @@ class OdeSolver
 	double _epsilon = 0.1e-6;
 	std::vector<std::vector<double>> _butcher_tableau = get_butcher_tableau(RUNGE_KUTTA_FELDBERG);
 	std::vector<std::vector<T>> evaluate_k(
-		const std::vector<T>& initial_conditions, double a, double h);
+		const std::vector<T>& initial_conditions, double a, double h) const;
 	std::pair<std::vector<T>, std::vector<T>> evaluate_uh(
-		const std::vector<T>& initial_conditions, double a, double h);
+		const std::vector<T>& initial_conditions, double a, double h) const;
 	double calculate_the_residual(double a,
 		const std::vector<T>& initial_conditions,
-		double h, std::vector<T>& u);
+		double h, std::vector<T>& u) const;
 
 
 public:
@@ -47,14 +47,14 @@ public:
 		std::vector<std::function<T(double, const std::vector<T>&)>>
 		functions, double epsilon, tableau t);
 	std::vector<T> solve(double a, double b,
-		const std::vector<T>& initial_conditions);
+		const std::vector<T>& initial_conditions) const;
 	std::vector<std::vector<T>> solve(const std::vector<double>& points,
-		const std::vector<T>& initial_conditions);
+		const std::vector<T>& initial_conditions) const;
 };
 
 template <class T>
 std::vector<std::vector<T>> OdeSolver<T>::evaluate_k(
-	const std::vector<T>& initial_conditions, double a, double h)
+	const std::vector<T>& initial_conditions, double a, double h) const
 {
 	std::vector<std::vector<T>> result;
 	std::vector<T> vector(_equations.size());
@@ -85,7 +85,7 @@ std::vector<std::vector<T>> OdeSolver<T>::evaluate_k(
 
 template<class T>
 std::pair<std::vector<T>, std::vector<T>> OdeSolver<T>::evaluate_uh(
-	const std::vector<T>& initial_conditions, double a, double h)
+	const std::vector<T>& initial_conditions, double a, double h) const
 {
 	std::vector<T> u(initial_conditions);
 	std::vector<T> uh(initial_conditions);
@@ -104,11 +104,11 @@ std::pair<std::vector<T>, std::vector<T>> OdeSolver<T>::evaluate_uh(
 
 template<class T>
 double OdeSolver<T>::calculate_the_residual(double a,
-	const std::vector<T>& initial_conditions, double h, std::vector<T>& u)
+	const std::vector<T>& initial_conditions, double h, std::vector<T>& u) const
 {
 	const auto uh = evaluate_uh(initial_conditions, a, h);
 	u = uh.first;
-	std::vector<T> diff = uh.first - uh.second;
+	const std::vector<T> diff = uh.first - uh.second;
 	return norm_(diff);
 }
 
@@ -127,7 +127,8 @@ OdeSolver<T>::OdeSolver(
 }
 
 template<class T>
-std::vector<T> OdeSolver<T>::solve(double a, double b, const std::vector<T>& initial_conditions)
+std::vector<T> OdeSolver<T>::solve(double a, double b, 
+	const std::vector<T>& initial_conditions) const
 {
 	if (a > b)
 	{
@@ -135,7 +136,7 @@ std::vector<T> OdeSolver<T>::solve(double a, double b, const std::vector<T>& ini
 	}
 	double h = b - a;
 	std::vector<T> initials(initial_conditions);
-	while (/*abs(b - a) > DBL_EPSILON &&*/ a < b)
+	while (a < b)
 	{
 		std::vector<T> u_;
 		double r = calculate_the_residual(a, initials, h, u_);
@@ -153,7 +154,7 @@ std::vector<T> OdeSolver<T>::solve(double a, double b, const std::vector<T>& ini
 template <class T>
 std::vector<std::vector<T>> OdeSolver<T>::solve(
 	const std::vector<double>& points,
-	const std::vector<T>& initial_conditions)
+	const std::vector<T>& initial_conditions) const
 {
 	std::vector<std::vector<T>> result;
 	result.push_back(solve(0, points[0], initial_conditions));

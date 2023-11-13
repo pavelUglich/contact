@@ -107,6 +107,7 @@ OdeSolver<complex<double>> layer::bigger_system(complex<double> alpha) const
 	};
 }
 
+/*
 complex<double> layer::num1(OdeSolver<complex<double>>& smaller, double x2,
 	double xi_2) const
 {
@@ -118,7 +119,7 @@ complex<double> layer::num1(OdeSolver<complex<double>>& smaller, double x2,
 	const auto num = I * sigma_1_h * u_2_xi2 * u_2_x2;
 	const auto& denum = sol2.back().back();
 	return num;// / denum;
-}
+}*/
 
 complex<double> layer::kernel_transformant(complex<double> alpha) const
 {
@@ -140,6 +141,7 @@ double layer::get_tolerance() const
 	return this->_tolerance;
 }
 
+/*
 complex<double> layer::fundamental_solution(double x1, double x2, double xi_1,
 	double xi_2) const
 {
@@ -157,6 +159,7 @@ complex<double> layer::fundamental_solution(double x1, double x2, double xi_1,
 	} while (abs(term) > _tolerance && n < _roots.size());
 	return result;
 }
+*/
 
 complex<double> layer::right_part(double xi_1, double xi_2) const {
 	complex <double> result = 0;
