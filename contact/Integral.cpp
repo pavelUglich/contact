@@ -16,11 +16,11 @@ complex<double> Integral::gauss(double a, double b, double x,
 		double y = m + n * xi[i];
 		complex<double> alpha = contour(y);
 		complex<double> da = derivative(y);
-		auto symbol = _integrand(-alpha) * exp(I * alpha * x) *da;
-		auto symbol1 = _integrand(alpha) * exp(-I * alpha * x) *da;
-		result += eta[i] * (symbol+symbol1);
+		auto symbol = _integrand(-alpha) * exp(I * alpha * x) * da;
+		auto symbol1 = _integrand(alpha) * exp(-I * alpha * x) * da;
+		result += eta[i] * (symbol + symbol1);
 	}
-	return 0.5*result;
+	return 0.5 * result;
 }
 
 complex<double> Integral::gauss(double a, double b, double x) const
@@ -32,7 +32,6 @@ complex<double> Integral::gauss(double a, double b, double x) const
 	{
 		double y = m + n * xi[i];
 		auto symbol = _integrand(-y) * exp(I * y * x) + _integrand(y) * exp(-I * y * x);
-		//symbol *= sin(y * x);
 		result += 0.5 * eta[i] * symbol;
 	}
 	return result;

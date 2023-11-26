@@ -1,9 +1,3 @@
-//
-//  layer.cpp
-//  diploma
-//
-//  Created by Максим Целигоров on 26.04.2023.
-//
 #include "OdeSolver.h"
 #include "layer.hpp"
 
@@ -74,8 +68,8 @@ OdeSolver<complex<double>> layer::smaller_system(complex<double> alpha) const
 	return
 	{
 		{
-			[=](double x, const vector<complex<double>>& y) {return y[1] / _mu(x); },
-			[=](double x, const vector<complex<double>>& y)
+			[this](double x, const vector<complex<double>>& y) {return y[1] / _mu(x); },
+			[this, alpha](double x, const vector<complex<double>>& y)
 			{
 				return (alpha * alpha * _mu(x) - _rho(x) * _kappa * _kappa) * y[0];
 			}
@@ -119,7 +113,7 @@ complex<double> layer::num1(OdeSolver<complex<double>>& smaller, double x2,
 	const auto num = I * sigma_1_h * u_2_xi2 * u_2_x2;
 	const auto& denum = sol2.back().back();
 	return num;// / denum;
-}*/
+}
 
 complex<double> layer::kernel_transformant(complex<double> alpha) const
 {

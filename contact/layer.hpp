@@ -12,11 +12,12 @@
 #include <stdio.h>
 #include <functional>
 #include"OdeSolver.h"
-
 using namespace std;
+
+
+
 const size_t MAX_ROOTS_NUMBER = 50;
 const complex<double> I = { 0, 1 };
-
 /// <summary>
 /// класс - абстрактный. Метод matrix - чисто абстрактный, реализация зависит 
 /// от типа граничного элемента

@@ -118,6 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="boundary_element.cpp" />
     <ClCompile Include="Integral.cpp" />
     <ClCompile Include="layer.cpp" />
     <ClCompile Include="layer_constant.cpp" />
@@ -136,6 +138,7 @@
     <ClCompile Include="vector_ops.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="boundary_element.h" />
     <ClInclude Include="ButcherTableau.h" />
     <ClInclude Include="Integral.h" />
     <ClInclude Include="layer.hpp" />
