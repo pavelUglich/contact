@@ -21,12 +21,13 @@ complex<double> layer_constant::b_constant(double uu) const
 }
 
 layer_constant::layer_constant(const function<double(double)>& mu,
-	const function<double(double)>& rho, double kappa, size_t roots_number, 
-	double tolerance):layer(mu, rho, kappa, roots_number, tolerance)
+	const function<double(double)>& rho, double kappa, size_t roots_number,
+	double tolerance) :layer(mu, rho, kappa, roots_number, tolerance)
 {
 }
 
-vector<vector<complex<double>>> layer_constant::matrix(double a, size_t size) const
+vector<vector<complex<double>>>
+layer_constant::matrix(double a, size_t size) const
 {
 	const double h = 2 * a / (double)size;
 	vector<complex<double>> bb(size + 1);
@@ -53,7 +54,7 @@ vector<vector<complex<double>>> layer_constant::matrix(double a, size_t size) co
 	return result;
 }
 
-std::complex<double> layer_constant::displacement(double x_1, double x_2, 
+std::complex<double> layer_constant::displacement(double x_1, double x_2,
 	std::vector<std::complex<double>> solution, double a) const
 {
 	const auto roots = get_roots();
@@ -61,7 +62,7 @@ std::complex<double> layer_constant::displacement(double x_1, double x_2,
 	std::vector<complex<double>> solutions(roots.size());
 	for (size_t i = 0; i < roots.size(); i++)
 	{
-		const auto numerator = smaller_system(roots[i]).solve(0, x_2, { 0,1 }).front();
+		const auto& numerator = smaller_system(roots[i]).solve(0, x_2, { 0,1 }).front();
 		solutions[i] = numerator / residues[i];
 	}
 	return { 0,0 };
