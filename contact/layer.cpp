@@ -101,6 +101,21 @@ OdeSolver<complex<double>> layer::bigger_system(complex<double> alpha) const
 	};
 }
 
+vector<complex<double>> layer::get_residues() const
+{
+	return this->_residues;
+}
+
+double layer::get_tolerance() const
+{
+	return this->_tolerance;
+}
+
+vector<complex<double>> layer::get_roots() const
+{
+	return this->_roots;
+}
+
 /*
 complex<double> layer::num1(OdeSolver<complex<double>>& smaller, double x2,
 	double xi_2) const

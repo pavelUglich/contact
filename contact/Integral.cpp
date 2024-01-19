@@ -4,6 +4,7 @@ using namespace std;
 const double pi = 3.1415926538;
 const std::complex<double> I = { 0,1 };
 
+
 complex<double> Integral::gauss(double a, double b, double x,
 	const function<complex<double>(double)>& contour,
 	const function<complex<double>(double)>& derivative) const

@@ -103,7 +103,7 @@ void plotTheDispersionalCurves(
 	//const auto maxFreq = dispersionSet.rbegin()->first;
 	for (size_t i = 0; i < numberOfCurves; i++) {
 		os << "\\addplot[smooth, black] plot coordinates{\n";
-		for (auto x : dispersionSet) {
+		for (auto& x : dispersionSet) {
 			if (i < x.second.size())
 			{
 				os << "(" << x.second[i].real() << ", " << x.first << ") ";
@@ -134,7 +134,7 @@ int main() {
 		auto sol = matrix.linSolve(vector<complex<double>>(size, { 1,0 }));
 		const complex<double> integral_ = h * std::accumulate(sol.begin(), sol.end(), complex<double>());
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
-		std::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
+		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
 		plotTheWaveField(h, { {"red", sol} }, "1.txt", -a  + h / 2); 
 	}
 	
@@ -147,7 +147,7 @@ int main() {
 		const complex<double> integral_ = h * (std::accumulate(sol.begin() + 1, sol.end() - 1, complex<double>())
 			+ 0.5 * (sol.front() + sol.back()));
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
-		std::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
+		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
 		plotTheWaveField(h, { {"black", sol} }, "2.txt", -a);
 	}//*/
 	system("pause");
