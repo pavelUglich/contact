@@ -109,7 +109,7 @@ public:
 	/// </summary>
 	/// <param name="alpha"></param>
 	/// <returns></returns>
-	complex<double> kernel_transformant(complex<double> alpha) const;
+	// complex<double> kernel_transformant(complex<double> alpha) const;
 
 	/// <summary>
 	/// конструктор

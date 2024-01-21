@@ -92,21 +92,21 @@ void plotTheDispersionalCurves(
 	os << "\\begin{tikzpicture}[scale=1.5]\n";
 	os << "\\begin{axis}[grid]\n";
 	const auto numberOfCurves = dispersionSet.rbegin()->second.size();
-	for (auto& item : dispersionSet) {
-		for (size_t i = 0; i < item.second.size(); ++i) {
-			if (item.second[i].real() < DBL_EPSILON)
-				item.second[i] = { -item.second[i].imag(),0 };
+	for (auto [x, y] : dispersionSet) {
+		for (auto& i :y) {
+			if (i.real() < DBL_EPSILON)
+				i = { -i.imag(),0 };
 		}
-		sort(item.second.begin(), item.second.end(),
+		std::ranges::sort(y.begin(), y.end(),
 			[](auto x, auto y) { return x.real() < y.real(); });
 	}
 	//const auto maxFreq = dispersionSet.rbegin()->first;
 	for (size_t i = 0; i < numberOfCurves; i++) {
 		os << "\\addplot[smooth, black] plot coordinates{\n";
-		for (auto& x : dispersionSet) {
-			if (i < x.second.size())
+		for (auto [x,y] : dispersionSet) {
+			if (i < y.size())
 			{
-				os << "(" << x.second[i].real() << ", " << x.first << ") ";
+				os << "(" << y[i].real() << ", " << x << ") ";
 			}
 		}
 		os << "};\n";
