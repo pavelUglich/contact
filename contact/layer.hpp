@@ -148,19 +148,34 @@ public:
 	/// </summary>
 	/// <param name="a"></param>
 	/// <returns></returns>
-	virtual vector<vector<complex<double>>> matrix(double a, size_t size) const = 0;
-
+	virtual vector<vector<complex<double>>> matrix(double a, size_t size) 
+		const = 0;
+		
 	/// <summary>
 	/// перемещение 
 	/// </summary>
 	/// <param name="x_1">координата x_1</param>
 	/// <param name="x_2">координата x_2</param>
-	/// <param name="solution">решение контактоной задачи</param>
+	/// <param name="solution">решение контактной задачи</param>
 	/// <param name="a">полуширина зоны контакта</param>
 	/// <returns>перемещение</returns>
 	virtual std::complex<double> displacement(double x_1, double x_2, 
 		std::vector<std::complex<double>> solution, double a) const = 0;
 
+	/// <summary>
+	/// вспомогательный метод для отыскания поля перемещений (первый сомножитель в
+	/// формуле (27), вычисляется отдельно для каждого корня)
+	/// </summary>
+	/// <param name="x_2"></param>
+	/// <param name="alpha"></param>
+	/// <returns></returns>
+	std::complex<double> displacement_auxiliary(double x_2, 
+		std::complex<double> alpha) const;
+
+	std::vector<std::complex<double>> displacement_auxiliary(const std::vector<double>& x_2,
+		std::complex<double> alpha) const;
+
+	void process_points_vector(std::vector<double>& points) const;
 
 	virtual ~layer() = default;
 };

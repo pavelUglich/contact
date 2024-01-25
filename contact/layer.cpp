@@ -1,5 +1,6 @@
 #include "OdeSolver.h"
 #include "layer.hpp"
+#include <numeric>
 
 //const complex<double> I = { 0,1 };
 
@@ -36,7 +37,7 @@ void layer::roots(size_t roots_number) {
 		const auto f_a = equation({ a, 0 });
 		const auto f_b = equation({ b, 0 });
 		if (f_a * f_b < 0) {
-			_roots[counter] = newton_method({ (a + b) / 2,0 });
+			_roots[counter] = newton_method({ std::midpoint(a, b),0 });
 			const auto fad = function_and_derivative(_roots[counter]);
 			_residues[counter] = fad.back();
 			++counter;
@@ -51,7 +52,7 @@ void layer::roots(size_t roots_number) {
 		const auto f_a = equation({ 0, a });
 		const auto f_b = equation({ 0, b });
 		if (f_a * f_b < 0) {
-			_roots[counter] = newton_method({ 0, (a + b) / 2 });
+			_roots[counter] = newton_method({ 0, std::midpoint(a, b) });
 			const auto fad = function_and_derivative(_roots[counter]);
 			_residues[counter] = fad.back();
 			++counter;
@@ -116,63 +117,11 @@ vector<complex<double>> layer::get_roots() const
 	return this->_roots;
 }
 
-/*
-complex<double> layer::num1(OdeSolver<complex<double>>& smaller, double x2,
-	double xi_2) const
-{
-	const auto sol1 = smaller.solve(0, 1, { 1, 0 });
-	const auto sol2 = smaller.solve({ 0, x2, xi_2, 1 }, { 0, 1 });
-	const auto& sigma_1_h = sol1.back();
-	const auto& u_2_xi2 = sol2[2][0];
-	const auto& u_2_x2 = sol2[1][0];
-	const auto num = I * sigma_1_h * u_2_xi2 * u_2_x2;
-	const auto& denum = sol2.back().back();
-	return num;// / denum;
-}
 
-complex<double> layer::kernel_transformant(complex<double> alpha) const
-{
-	const auto sol = this->smaller_system(alpha).solve(0, 1, { 0,1 });
-	return sol[0] / sol[1];
-}
-
-vector<complex<double>> layer::get_roots() const {
-	return _roots;
-}
-
-vector<complex<double>> layer::get_residues() const
-{
-	return _residues;
-}
-
-double layer::get_tolerance() const
-{
-	return this->_tolerance;
-}
-
-/*
-complex<double> layer::fundamental_solution(double x1, double x2, double xi_1,
-	double xi_2) const
-{
-	complex <double> result = 0;
-	complex <double> term;
-	size_t n = 0;
-	do {
-		const complex<double> alpha = _roots[n];
-		auto smaller = smaller_system(alpha);
-		const auto num = x2 < xi_2
-			? num1(smaller, x2, xi_2)
-			: num1(smaller, xi_2, x2);
-		term = num * exp(I * alpha * abs(xi_1 - x1)) / _residues[n++];
-		result += term;
-	} while (abs(term) > _tolerance && n < _roots.size());
-	return result;
-}
-*/
 
 complex<double> layer::right_part(double xi_1, double xi_2) const {
-	complex <double> result = 0;
-	complex <double> term;
+	complex<double> result = 0;
+	complex<double> term;
 	complex<double> alpha;
 	size_t n = 0;
 	do {
@@ -184,6 +133,42 @@ complex<double> layer::right_part(double xi_1, double xi_2) const {
 		result += term;
 	} while (abs(term) > _tolerance && n < _roots.size());
 	return I * result;
+}
+
+std::complex<double> layer::displacement_auxiliary(double x_2, 
+	std::complex<double> alpha) const
+{
+	std::vector<double> points = { x_2 };
+	process_points_vector(points);
+	const auto solution = this->bigger_system().solve(points, { 0,1,0,0 });
+	return solution[1][0] / solution.back().back();
+}
+
+std::vector<std::complex<double>> layer::displacement_auxiliary(
+	const std::vector<double>& x_2, std::complex<double> alpha) const
+{
+	auto points = x_2;
+	process_points_vector(points);
+	auto solution = this->bigger_system().solve(points, { 0,1,0,0 });
+	const auto denumerator = solution.back().back();
+	std::vector<std::complex<double>> result(solution.size());
+	for (size_t i = 0; i < result.size(); i++)
+	{
+		result[i] = solution[i][0] / denumerator;
+	}
+	return result;
+}
+
+void layer::process_points_vector(std::vector<double>& points) const
+{
+	if (abs(points.front()) > DBL_EPSILON)
+	{
+		points.insert(points.begin(), 0.0);
+	}
+	if (abs(points.back() - 1) > DBL_EPSILON)
+	{
+		points.push_back(1.0);
+	}
 }
 
 layer::layer(const function<double(double)>& mu,
