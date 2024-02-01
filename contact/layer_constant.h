@@ -4,6 +4,13 @@
 class layer_constant :
 	public layer
 {
+	std::complex<double> evaluate_exp(
+		const std::vector<std::complex<double>>& tau, double a, double x_1, 
+		size_t size, std::complex<double> alpha) const;
+
+	// int_auxiliary(tau[i], alpha, x_1, edges[i - 1], edges[i]);
+	std::complex<double> int_auxiliary(std::complex<double> tau, 
+		std::complex<double> alpha, double x_1, double a, double b) const;
 
 public:
 	/// <summary>

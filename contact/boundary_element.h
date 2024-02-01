@@ -4,11 +4,12 @@
 class boundary_element
 {
 	// концы отрезка
-	double _left, _right;
+	double _left;
+	double _right;
 	std::vector<double> _nodal_points;
 public:
 	boundary_element(double left, double right,
-		const std::vector<double> nodal_points) :_left(left), _right(right), 
+		const std::vector<double>& nodal_points) :_left(left), _right(right), 
 		_nodal_points(nodal_points) {}
 
 	/// <summary>

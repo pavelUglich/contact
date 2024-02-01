@@ -67,8 +67,18 @@ class layer {
 	/// <param name="roots_number">количество корней</param>
 	void roots(size_t roots_number);
 
+	/// <summary>
+	/// интегральный множитель в формуле (27)
+	/// </summary>
+	/// <param name="tau"></param>
+	/// <param name="a"></param>
+	/// <param name="size"></param>
+	/// <param name="alpha"></param>
+	/// <returns></returns>
+	virtual std::complex<double> evaluate_exp(
+		const std::vector<std::complex<double>>& tau, double a, double x_1, 
+		size_t size, std::complex<double> alpha) const = 0;
 
-	//complex<double> num1(OdeSolver<complex<double>>& smaller, double x2, double xi_2) const;
 protected:
 	/// <summary>
 	/// система ОДУ в трансформантах (используем, если производная по \alpha не нужна)
@@ -105,13 +115,6 @@ public:
 	vector<complex<double>> get_roots() const;
 
 	/// <summary>
-	/// трансформанта ядра
-	/// </summary>
-	/// <param name="alpha"></param>
-	/// <returns></returns>
-	// complex<double> kernel_transformant(complex<double> alpha) const;
-
-	/// <summary>
 	/// конструктор
 	/// </summary>
 	/// <param name="mu"> распределение модуля сдвига </param>
@@ -123,16 +126,6 @@ public:
 		const function<double(double)>& rho, double kappa,
 		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5);
 
-	/// <summary>
-	/// фундаментальное решение
-	/// </summary>
-	/// <param name="x1"></param>
-	/// <param name="x2"></param>
-	/// <param name="xi_1"></param>
-	/// <param name="xi_2"></param>
-	/// <returns></returns>
-	// complex<double> fundamental_solution(double x1, double x2,
-	// 	double xi_1, double xi_2) const;
 
 	/// <summary>
 	/// правая часть интегрального уравнения
@@ -176,6 +169,7 @@ public:
 		std::complex<double> alpha) const;
 
 	void process_points_vector(std::vector<double>& points) const;
+
 
 	virtual ~layer() = default;
 };
