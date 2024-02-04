@@ -1,4 +1,4 @@
-#include "layer_linear.h"
+п»ї#include "layer_linear.h"
 
 complex<double> layer_linear::b_constant(double uu, double h) const
 {
@@ -63,6 +63,27 @@ complex<double> layer_linear::b_left(double uu, double h) const
 	return result;
 }
 
+std::complex<double> layer_linear::evaluate_exp(
+	const std::vector<std::complex<double>>& tau, double a, double x_1, 
+	size_t size, std::complex<double> alpha) const
+{
+	std::vector<double> nodes(size + 1); // СЃСЂРµРґРёРЅРЅС‹Рµ С‚РѕС‡РєРё РѕС‚СЂРµР·РєРѕРІ
+	std::vector<double> edges(size + 1); // РєРѕРЅС†С‹ РѕС‚СЂРµР·РєРѕРІ
+	const auto h = 2 * a / size;
+	for (size_t i = 0; i <= size; i++)
+	{
+		nodes[i] = i * h;
+		edges[i] = i * h;
+	}
+	std::complex<double> result = 0;
+	for (size_t i = 0; i < size; i++)
+	{
+		result += int_auxiliary(tau[i], tau[i + 1], alpha, x_1, edges[i - 1], 
+			edges[i]);
+	}
+	return result;
+}
+
 layer_linear::layer_linear(const function<double(double)>& mu,
 	const function<double(double)>& rho, double kappa, size_t roots_number,
 	double tolerance) :layer(mu, rho, kappa, roots_number, tolerance)
@@ -73,7 +94,7 @@ vector<vector<complex<double>>> layer_linear::matrix(double a, size_t size) cons
 {
 	const double h = 2 * a / size;
 	vector<vector<complex<double>>> result(size + 1, vector<complex<double>>(size + 1));
-	// 1. заполняем левый и правый столбцы
+	// 1. Г§Г ГЇГ®Г«Г­ГїГҐГ¬ Г«ГҐГўГ»Г© ГЁ ГЇГ°Г ГўГ»Г© Г±ГІГ®Г«ГЎГ¶Г»
 	vector<complex<double>> bb(size + 1);	
 	double x = 0; // !!!
 	for (size_t i = 0; i < bb.size(); i++)
@@ -81,7 +102,7 @@ vector<vector<complex<double>>> layer_linear::matrix(double a, size_t size) cons
 		bb[i] = b_left(x, h);
 		x += h;
 	}
-	// 2. заполняем диагональ
+	// 2. Г§Г ГЇГ®Г«Г­ГїГҐГ¬ Г¤ГЁГ ГЈГ®Г­Г Г«Гј
 	const auto diag = b_diagonal(h);
 	for (size_t i = 0; i < result.size(); i++)
 	{

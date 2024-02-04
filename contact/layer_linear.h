@@ -12,6 +12,10 @@ class layer_linear :
 	complex<double> b_constant(double uu, double h) const;
 	complex<double> b_diagonal(double h) const;
 	complex<double> b_left(double uu, double h) const;
+
+	std::complex<double> evaluate_exp(
+		const std::vector<std::complex<double>>& tau, double a, double x_1,
+		size_t size, std::complex<double> alpha) const;
 public:
 	/// <summary>
 	/// конструктор

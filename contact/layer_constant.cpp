@@ -24,17 +24,17 @@ std::complex<double> layer_constant::evaluate_exp(
 std::complex<double> layer_constant::int_auxiliary(std::complex<double> tau,
 	std::complex<double> alpha, double x_1, double a, double b) const
 {
-	if (x_1 < a)
+	if (x_1 <= a)
 	{
 		const auto diff = exp(I * alpha * b) - exp(I * alpha * a);
-		return exp(-I * alpha * x_1) * diff / I / alpha;
+		return tau * exp(-I * alpha * x_1) * diff / I / alpha;
 	}
-	if (x_1 > a)
+	if (x_1 >= b)
 	{
 		const auto diff = exp(-I * alpha * a) - exp(-I * alpha * b);
-		return exp(I * alpha * x_1) * diff / I / alpha;
+		return tau * exp(I * alpha * x_1) * diff / I / alpha;
 	}
-	return std::complex<double>();
+	return tau * (int_auxiliary(tau, alpha, x_1, a, x_1) + int_auxiliary(tau, alpha, x_1, x_1, b));
 }
 
 complex<double> layer_constant::b_constant(double uu) const
