@@ -15,7 +15,12 @@ class layer_linear :
 
 	std::complex<double> evaluate_exp(
 		const std::vector<std::complex<double>>& tau, double a, double x_1,
-		size_t size, std::complex<double> alpha) const;
+		size_t size, std::complex<double> alpha) const override;
+
+	std::complex<double> int_auxiliary(std::complex<double> tau_left, 
+		std::complex<double> tau_right,	std::complex<double> alpha, double x_1, 
+		double a, double b) const;
+
 public:
 	/// <summary>
 	/// конструктор
