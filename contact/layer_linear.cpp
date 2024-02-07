@@ -88,6 +88,26 @@ std::complex<double> layer_linear::int_auxiliary(std::complex<double> tau_left,
 	std::complex<double> tau_right, std::complex<double> alpha, double x_1, 
 	double a, double b) const
 {
+	if (x_1 < a)
+	{
+		const auto left = 1.0 / alpha / alpha / (a - b) *	
+			(exp(I * alpha * (b - x_1)) - exp(I * alpha * (a - x_1)) 
+				+ I * alpha * (a - b) * exp(I * alpha * (a - x_1)));
+		const auto right = 1.0 / alpha / alpha / (a - b) *
+			(exp(I * alpha * (b - x_1)) - exp(I * alpha * (a - x_1))
+				- I * alpha * (a - b) * exp(I * alpha * (b - x_1)));
+		return tau_left * left + tau_right * right;
+	}
+	if (x_1 > b)
+	{
+		const auto left = 1.0 / alpha / alpha / (a - b) *
+			(exp(I * alpha * (x_1 - b)) - exp(I * alpha * (x_1 - a))
+				- I * alpha * (a - b) * exp(I * alpha * (x_1 - a)));
+		const auto right = 1.0 / alpha / alpha / (a - b) *
+			(exp(I * alpha * (x_1 - a)) - exp(I * alpha * (x_1 - b))
+				+ I * alpha * (a - b) * exp(I * alpha * (x_1 - b)));
+		return tau_left * left + tau_right * right;
+	}
 	return std::complex<double>();
 }
 
