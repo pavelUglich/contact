@@ -1,8 +1,8 @@
 #include "OdeSolver.h"
 #include "layer.hpp"
 #include <numeric>
-
-//const complex<double> I = { 0,1 };
+#include <fstream>
+#include <iomanip>
 
 
 vector<complex<double>> layer::function_and_derivative(complex<double> alpha) const {
@@ -135,12 +135,26 @@ complex<double> layer::right_part(double xi_1, double xi_2) const {
 	return I * result;
 }
 
-std::complex<double> layer::displacement_auxiliary(double x_2, 
+std::complex<double> layer::displacement(double x_1, double x_2, 
+	const std::vector<std::complex<double>>& solution, double a) const
+{
+	const auto roots = get_roots();
+	const auto residues = get_residues();
+	std::complex<double> result;
+	for (size_t i = 0; i < roots.size(); i++)
+	{
+		const auto numerator = smaller_system(roots[i]).solve(0, x_2, { 0,1 }).front();
+		result += numerator / residues[i] * evaluate_exp(solution, a, x_1, roots[i]);
+	}
+	return I * result;
+}
+
+std::complex<double> layer::displacement_auxiliary(double x_2,
 	std::complex<double> alpha) const
 {
 	std::vector<double> points = { x_2 };
 	process_points_vector(points);
-	const auto solution = this->bigger_system().solve(points, { 0,1,0,0 });
+	const auto solution = this->bigger_system(alpha).solve(points, { 0,1,0,0 });
 	return solution[1][0] / solution.back().back();
 }
 
@@ -149,7 +163,7 @@ std::vector<std::complex<double>> layer::displacement_auxiliary(
 {
 	auto points = x_2;
 	process_points_vector(points);
-	auto solution = this->bigger_system().solve(points, { 0,1,0,0 });
+	auto solution = this->bigger_system(alpha).solve(points, { 0,1,0,0 });
 	const auto denumerator = solution.back().back();
 	std::vector<std::complex<double>> result(solution.size());
 	for (size_t i = 0; i < result.size(); i++)
@@ -171,9 +185,46 @@ void layer::process_points_vector(std::vector<double>& points) const
 	}
 }
 
+void layer::save_to_file(const std::string& filename) const
+{
+	std::ofstream ofs(filename);
+	for (size_t i = 0; i < this->_roots.size(); i++)
+	{
+		ofs << setprecision(30);
+		ofs << this->_kappa << "\n";
+		ofs << _roots[i].real() << " " << _roots[i].imag() << " ";
+		ofs << _residues[i].real() << " " << _residues[i].imag() << "\n";
+	}
+	ofs.close();
+}
+
+void layer::load_from_file(const std::string& filename)
+{
+	std::ifstream ifs(filename);
+	ifs >> this->_kappa;
+	_roots.clear();
+	_residues.clear();
+	while (!ifs.eof())
+	{
+		double re, im;
+		ifs >> re >> im;
+		_roots.emplace_back(re, im);
+		ifs >> re >> im;
+		_residues.emplace_back(re, im);
+	}
+	ifs.close();
+}
+
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, double kappa, size_t roots_number,
 	double tolerance) :_mu(mu), _rho(rho), _kappa(kappa), _tolerance(tolerance)
 {
 	roots(roots_number);
+}
+
+layer::layer(const function<double(double)>& mu, 
+	const function<double(double)>& rho, const std::string& filename, 
+	double tolerance) :_mu(mu), _rho(rho), _tolerance(tolerance)
+{
+	this->load_from_file(filename);
 }

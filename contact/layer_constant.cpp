@@ -2,8 +2,9 @@
 
 std::complex<double> layer_constant::evaluate_exp(
 	const std::vector<std::complex<double>>& tau, double a, double x_1,
-	size_t size, std::complex<double> alpha) const
+	std::complex<double> alpha) const
 {
+	const auto size = tau.size();
 	std::vector<double> nodes(size); // срединные точки отрезков
 	std::vector<double> edges(size + 1); // концы отрезков
 	const auto h = 2 * a / size;
@@ -14,7 +15,7 @@ std::complex<double> layer_constant::evaluate_exp(
 		edges[i + 1] = i * h;
 	}
 	std::complex<double> result = 0;
-	for (size_t i = 0; i < size; i++)
+	for (size_t i = 1; i < size; i++)
 	{
 		result += int_auxiliary(tau[i], alpha, x_1, edges[i - 1], edges[i]);
 	}
@@ -63,6 +64,12 @@ layer_constant::layer_constant(const function<double(double)>& mu,
 {
 }
 
+layer_constant::layer_constant(const function<double(double)>& mu,
+	const function<double(double)>& rho, const std::string& filename,
+	double tolerance) :layer(mu, rho, filename, tolerance)
+{
+}
+
 vector<vector<complex<double>>>
 layer_constant::matrix(double a, size_t size) const
 {
@@ -91,16 +98,3 @@ layer_constant::matrix(double a, size_t size) const
 	return result;
 }
 
-std::complex<double> layer_constant::displacement(double x_1, double x_2,
-	std::vector<std::complex<double>> solution, double a) const
-{
-	const auto roots = get_roots();
-	const auto residues = get_residues();
-	std::vector<complex<double>> solutions(roots.size());
-	for (size_t i = 0; i < roots.size(); i++)
-	{
-		const auto& numerator = smaller_system(roots[i]).solve(0, x_2, { 0,1 }).front();
-		solutions[i] = numerator / residues[i];
-	}
-	return { 0,0 };
-}

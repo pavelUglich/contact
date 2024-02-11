@@ -77,7 +77,9 @@ class layer {
 	/// <returns></returns>
 	virtual std::complex<double> evaluate_exp(
 		const std::vector<std::complex<double>>& tau, double a, double x_1, 
-		size_t size, std::complex<double> alpha) const = 0;
+		std::complex<double> alpha) const = 0;
+
+
 
 protected:
 	/// <summary>
@@ -126,6 +128,9 @@ public:
 		const function<double(double)>& rho, double kappa,
 		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5);
 
+	layer(const function<double(double)>& mu,
+		const function<double(double)>& rho, const std::string& filename, 
+		double tolerance = 0.1e-5);
 
 	/// <summary>
 	/// правая часть интегрального уравнения
@@ -152,8 +157,8 @@ public:
 	/// <param name="solution">решение контактной задачи</param>
 	/// <param name="a">полуширина зоны контакта</param>
 	/// <returns>перемещение</returns>
-	virtual std::complex<double> displacement(double x_1, double x_2, 
-		std::vector<std::complex<double>> solution, double a) const = 0;
+	std::complex<double> displacement(double x_1, double x_2, 
+		const std::vector<std::complex<double>>& solution, double a) const;
 
 	/// <summary>
 	/// вспомогательный метод для отыскания поля перемещений (первый сомножитель в
@@ -170,6 +175,9 @@ public:
 
 	void process_points_vector(std::vector<double>& points) const;
 
+
+	void save_to_file(const std::string& filename) const;
+	void load_from_file(const std::string& filename);
 
 	virtual ~layer() = default;
 };

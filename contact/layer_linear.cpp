@@ -64,9 +64,10 @@ complex<double> layer_linear::b_left(double uu, double h) const
 }
 
 std::complex<double> layer_linear::evaluate_exp(
-	const std::vector<std::complex<double>>& tau, double a, double x_1, 
-	size_t size, std::complex<double> alpha) const
+	const std::vector<std::complex<double>>& tau, double a, double x_1,
+	std::complex<double> alpha) const
 {
+	const auto size = tau.size();
 	std::vector<double> nodes(size + 1); // срединные точки отрезков
 	std::vector<double> edges(size + 1); // концы отрезков
 	const auto h = 2 * a / size;
@@ -78,20 +79,20 @@ std::complex<double> layer_linear::evaluate_exp(
 	std::complex<double> result = 0;
 	for (size_t i = 0; i < size; i++)
 	{
-		result += int_auxiliary(tau[i], tau[i + 1], alpha, x_1, edges[i - 1], 
+		result += int_auxiliary(tau[i], tau[i + 1], alpha, x_1, edges[i - 1],
 			edges[i]);
 	}
 	return result;
 }
 
 std::complex<double> layer_linear::int_auxiliary(std::complex<double> tau_left,
-	std::complex<double> tau_right, std::complex<double> alpha, double x_1, 
+	std::complex<double> tau_right, std::complex<double> alpha, double x_1,
 	double a, double b) const
 {
 	if (x_1 < a)
 	{
-		const auto left = 1.0 / alpha / alpha / (a - b) *	
-			(exp(I * alpha * (b - x_1)) - exp(I * alpha * (a - x_1)) 
+		const auto left = 1.0 / alpha / alpha / (a - b) *
+			(exp(I * alpha * (b - x_1)) - exp(I * alpha * (a - x_1))
 				+ I * alpha * (a - b) * exp(I * alpha * (a - x_1)));
 		const auto right = 1.0 / alpha / alpha / (a - b) *
 			(exp(I * alpha * (b - x_1)) - exp(I * alpha * (a - x_1))
@@ -108,7 +109,19 @@ std::complex<double> layer_linear::int_auxiliary(std::complex<double> tau_left,
 				+ I * alpha * (a - b) * exp(I * alpha * (x_1 - b)));
 		return tau_left * left + tau_right * right;
 	}
-	return std::complex<double>();
+	const auto left_0 = 1.0 / (a - b) / alpha / alpha * (alpha * I * (a - b)
+		* exp(I * alpha * (a - x_1)) - exp(I * alpha * (a - x_1))
+		+ exp(I * alpha * (a - x_1)));
+	const auto left_1 = 1.0 / (a - b) / alpha / alpha * (-alpha * I * (a - b)
+		* exp(I * alpha * (b - x_1)) + exp(I * alpha * (a - x_1))
+		+ exp(I * alpha * (b - x_1)));
+	const auto right_0 = - 1.0 / (a - b) / alpha / alpha * (alpha * I * (a - b)
+		* exp(I * alpha * (x_1 - a)) + exp(I * alpha * (x_1 - a))
+		- exp(I * alpha * (x_1 - b)));
+	const auto right_1 = - 1.0 / (a - b) / alpha / alpha * (-alpha * I * (a - b)
+		* exp(I * alpha * (x_1 - b)) + exp(I * alpha * (x_1 - b))
+		- exp(I * alpha * (x_1 - a)));
+	return tau_left * (left_0 + right_0) + tau_right * (left_1 + right_1);
 }
 
 layer_linear::layer_linear(const function<double(double)>& mu,
@@ -122,7 +135,7 @@ vector<vector<complex<double>>> layer_linear::matrix(double a, size_t size) cons
 	const double h = 2 * a / size;
 	vector<vector<complex<double>>> result(size + 1, vector<complex<double>>(size + 1));
 	// 1. çàïîëíÿåì ëåâûé è ïðàâûé ñòîëáöû
-	vector<complex<double>> bb(size + 1);	
+	vector<complex<double>> bb(size + 1);
 	double x = 0; // !!!
 	for (size_t i = 0; i < bb.size(); i++)
 	{
@@ -158,8 +171,3 @@ vector<vector<complex<double>>> layer_linear::matrix(double a, size_t size) cons
 	return result;
 }
 
-std::complex<double> layer_linear::displacement(double x_1, double x_2, 
-	std::vector<std::complex<double>> solution, double a) const
-{
-	return {0,0};
-}

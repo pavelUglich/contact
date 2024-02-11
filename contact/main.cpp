@@ -128,6 +128,7 @@ int main() {
 	const double a = 2.0;
 	{
 		layer_constant l = { mu, rho, kappa };
+		l.save_to_file("roots.txt");
 		const auto h = 2 * a / (double)size;
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size, mm);
@@ -135,6 +136,7 @@ int main() {
 		const complex<double> integral_ = h * std::accumulate(sol.begin(), sol.end(), complex<double>());
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
+		std::cout << l.displacement(0, 0.5, sol, a) << std::endl;
 		plotTheWaveField(h, { {"red", sol} }, "1.txt", -a  + h / 2); 
 	}
 	
@@ -148,6 +150,7 @@ int main() {
 			+ 0.5 * (sol.front() + sol.back()));
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
+		std::cout << l.displacement(0, 0.5, sol, a) << std::endl;
 		plotTheWaveField(h, { {"black", sol} }, "2.txt", -a);
 	}//*/
 	system("pause");

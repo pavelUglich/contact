@@ -14,8 +14,8 @@ class layer_linear :
 	complex<double> b_left(double uu, double h) const;
 
 	std::complex<double> evaluate_exp(
-		const std::vector<std::complex<double>>& tau, double a, double x_1,
-		size_t size, std::complex<double> alpha) const override;
+		const std::vector<std::complex<double>>& tau, double a, double x_1, 
+		std::complex<double> alpha) const override;
 
 	std::complex<double> int_auxiliary(std::complex<double> tau_left, 
 		std::complex<double> tau_right,	std::complex<double> alpha, double x_1, 
@@ -37,8 +37,6 @@ public:
 	vector<vector<complex<double>>> matrix(double a, size_t size) const
 		override;
 
-	std::complex<double> displacement(double x_1, double x_2, 
-		std::vector<std::complex<double>> solution, double a) const override;
 
 };
 
