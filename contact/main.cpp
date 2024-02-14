@@ -127,8 +127,8 @@ int main() {
 	size_t size = 80;
 	const double a = 2.0;
 	{
-		layer_constant l = { mu, rho, kappa };
-		l.save_to_file("roots.txt");
+		layer_constant l = { mu, rho, "roots.txt"/*kappa*/};
+		//l.save_to_file("roots.txt");
 		const auto h = 2 * a / (double)size;
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size, mm);
@@ -141,7 +141,7 @@ int main() {
 	}
 	
 	{
-		layer_linear l = { mu, rho, kappa };
+		layer_linear l = { mu, rho, "roots.txt" };
 		const auto h = 2 * a / (double)size;
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size + 1, mm);

@@ -188,10 +188,10 @@ void layer::process_points_vector(std::vector<double>& points) const
 void layer::save_to_file(const std::string& filename) const
 {
 	std::ofstream ofs(filename);
+	ofs << setprecision(30);
+	ofs << this->_kappa << "\n";
 	for (size_t i = 0; i < this->_roots.size(); i++)
 	{
-		ofs << setprecision(30);
-		ofs << this->_kappa << "\n";
 		ofs << _roots[i].real() << " " << _roots[i].imag() << " ";
 		ofs << _residues[i].real() << " " << _residues[i].imag() << "\n";
 	}

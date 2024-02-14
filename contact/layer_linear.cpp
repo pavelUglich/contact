@@ -130,6 +130,12 @@ layer_linear::layer_linear(const function<double(double)>& mu,
 {
 }
 
+layer_linear::layer_linear(const function<double(double)>& mu, 
+	const function<double(double)>& rho, const std::string& filename, 
+	double tolerance) :layer(mu, rho, filename, tolerance)
+{
+}
+
 vector<vector<complex<double>>> layer_linear::matrix(double a, size_t size) const
 {
 	const double h = 2 * a / size;
