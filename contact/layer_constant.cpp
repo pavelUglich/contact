@@ -11,13 +11,13 @@ std::complex<double> layer_constant::evaluate_exp(
 	edges[0] = -a;
 	for (size_t i = 0; i < size; i++)
 	{
-		nodes[i] = (2 * i + 1) * h / 2;
-		edges[i + 1] = i * h;
+		nodes[i] = (2 * i + 1) * h / 2 - a;
+		edges[i + 1] = (i + 1) * h - a;
 	}
 	std::complex<double> result = 0;
-	for (size_t i = 1; i < size; i++)
+	for (size_t i = 0; i < size; i++)
 	{
-		result += int_auxiliary(tau[i], alpha, x_1, edges[i - 1], edges[i]);
+		result += int_auxiliary(tau[i], alpha, x_1, edges[i], edges[i + 1]);
 	}
 	return result;
 }
@@ -27,15 +27,17 @@ std::complex<double> layer_constant::int_auxiliary(std::complex<double> tau,
 {
 	if (x_1 <= a)
 	{
-		const auto diff = exp(I * alpha * b) - exp(I * alpha * a);
-		return tau * exp(-I * alpha * x_1) * diff / I / alpha;
+		const auto diff = exp(I * alpha * a) - exp(I * alpha * b);
+		return tau * exp(-I * alpha * x_1) * diff * I / alpha;
 	}
 	if (x_1 >= b)
 	{
-		const auto diff = exp(-I * alpha * a) - exp(-I * alpha * b);
-		return tau * exp(I * alpha * x_1) * diff / I / alpha;
+		const auto diff = exp(-I * alpha * b) - exp(-I * alpha * a);
+		return tau * exp(I * alpha * x_1) * diff * I / alpha;
 	}
-	return tau * (int_auxiliary(tau, alpha, x_1, a, x_1) + int_auxiliary(tau, alpha, x_1, x_1, b));
+	const auto left = int_auxiliary(tau, alpha, x_1, a, x_1);
+	const auto right = int_auxiliary(tau, alpha, x_1, x_1, b);
+	return tau * (left + right);
 }
 
 complex<double> layer_constant::b_constant(double uu) const

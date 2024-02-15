@@ -68,19 +68,19 @@ std::complex<double> layer_linear::evaluate_exp(
 	std::complex<double> alpha) const
 {
 	const auto size = tau.size();
-	std::vector<double> nodes(size + 1); // срединные точки отрезков
-	std::vector<double> edges(size + 1); // концы отрезков
-	const auto h = 2 * a / size;
-	for (size_t i = 0; i <= size; i++)
-	{
-		nodes[i] = i * h;
-		edges[i] = i * h;
-	}
-	std::complex<double> result = 0;
+	std::vector<double> nodes(size); // срединные точки отрезков
+	std::vector<double> edges(size); // концы отрезков
+	const auto h = 2 * a / (size - 1);
 	for (size_t i = 0; i < size; i++)
 	{
-		result += int_auxiliary(tau[i], tau[i + 1], alpha, x_1, edges[i - 1],
-			edges[i]);
+		nodes[i] = i * h - a;
+		edges[i] = i * h - a;
+	}
+	std::complex<double> result = 0;
+	for (size_t i = 0; i < size - 1; i++)
+	{
+		result += int_auxiliary(tau[i], tau[i + 1], alpha, x_1, edges[i],
+			edges[i + 1]);
 	}
 	return result;
 }
@@ -89,7 +89,7 @@ std::complex<double> layer_linear::int_auxiliary(std::complex<double> tau_left,
 	std::complex<double> tau_right, std::complex<double> alpha, double x_1,
 	double a, double b) const
 {
-	if (x_1 < a)
+	if (x_1 <= a)
 	{
 		const auto left = 1.0 / alpha / alpha / (a - b) *
 			(exp(I * alpha * (b - x_1)) - exp(I * alpha * (a - x_1))
@@ -99,7 +99,7 @@ std::complex<double> layer_linear::int_auxiliary(std::complex<double> tau_left,
 				- I * alpha * (a - b) * exp(I * alpha * (b - x_1)));
 		return tau_left * left + tau_right * right;
 	}
-	if (x_1 > b)
+	if (x_1 >= b)
 	{
 		const auto left = 1.0 / alpha / alpha / (a - b) *
 			(exp(I * alpha * (x_1 - b)) - exp(I * alpha * (x_1 - a))
@@ -109,18 +109,16 @@ std::complex<double> layer_linear::int_auxiliary(std::complex<double> tau_left,
 				+ I * alpha * (a - b) * exp(I * alpha * (x_1 - b)));
 		return tau_left * left + tau_right * right;
 	}
-	const auto left_0 = 1.0 / (a - b) / alpha / alpha * (alpha * I * (a - b)
-		* exp(I * alpha * (a - x_1)) - exp(I * alpha * (a - x_1))
-		+ exp(I * alpha * (a - x_1)));
-	const auto left_1 = 1.0 / (a - b) / alpha / alpha * (-alpha * I * (a - b)
-		* exp(I * alpha * (b - x_1)) + exp(I * alpha * (a - x_1))
-		+ exp(I * alpha * (b - x_1)));
-	const auto right_0 = - 1.0 / (a - b) / alpha / alpha * (alpha * I * (a - b)
-		* exp(I * alpha * (x_1 - a)) + exp(I * alpha * (x_1 - a))
-		- exp(I * alpha * (x_1 - b)));
-	const auto right_1 = - 1.0 / (a - b) / alpha / alpha * (-alpha * I * (a - b)
-		* exp(I * alpha * (x_1 - b)) + exp(I * alpha * (x_1 - b))
-		- exp(I * alpha * (x_1 - a)));
+	const auto left_0 = 1.0 / (a - b) / alpha / alpha * (alpha * I * (x_1 - b)
+		- 1.0 + exp(I * alpha * (b - x_1)));
+	const auto left_1 = -1.0 / (a - b) / alpha / alpha *
+		(exp(I * alpha * (x_1 - a)) + I * alpha * (a - b)
+			* exp(I * alpha * (x_1 - a)) - 1.0 + I * alpha * (b - x_1));
+	const auto right_0 = -1.0 / (a - b) / alpha / alpha * (-1.0 + I * alpha 
+		* (x_1 - a) + exp(I * alpha * (b - x_1) + I * alpha * (a - b) 
+			* exp(I * alpha * (b - x_1))));
+	const auto right_1 = -1.0 / (a - b) / alpha / alpha * (-exp(I * alpha * (x_1 - a))
+		+ 1.0 + I * alpha * (x_1 - a));
 	return tau_left * (left_0 + right_0) + tau_right * (left_1 + right_1);
 }
 
@@ -130,8 +128,8 @@ layer_linear::layer_linear(const function<double(double)>& mu,
 {
 }
 
-layer_linear::layer_linear(const function<double(double)>& mu, 
-	const function<double(double)>& rho, const std::string& filename, 
+layer_linear::layer_linear(const function<double(double)>& mu,
+	const function<double(double)>& rho, const std::string& filename,
 	double tolerance) :layer(mu, rho, filename, tolerance)
 {
 }

@@ -144,7 +144,8 @@ std::complex<double> layer::displacement(double x_1, double x_2,
 	for (size_t i = 0; i < roots.size(); i++)
 	{
 		const auto numerator = smaller_system(roots[i]).solve(0, x_2, { 0,1 }).front();
-		result += numerator / residues[i] * evaluate_exp(solution, a, x_1, roots[i]);
+		const auto ee = evaluate_exp(solution, a, x_1, roots[i]);
+		result += numerator / residues[i] * ee;
 	}
 	return I * result;
 }

@@ -28,7 +28,7 @@ complex<double> transformant(complex<double> alpha, double _kappa)
 {
 	//return 1.0 / alpha;
 	/*const auto _mu = [](double) {return 1.0; };
-	const auto _rho = [](double) {return 1.0; }; 
+	const auto _rho = [](double) {return 1.0; };
 	OdeSolver<complex<double>> os =
 	{
 		{
@@ -58,7 +58,7 @@ complex<double> analytical(double x, double _kappa, double eps = 0.1e-5)
 		const complex<double> alpha = sqrt(_kappa * _kappa - (frac * frac));
 		term = exp(I * alpha * x) / alpha;
 		result += term / alpha;
-	} while (abs(term)>eps);
+	} while (abs(term) > eps);
 	return result;
 }
 
@@ -93,7 +93,7 @@ void plotTheDispersionalCurves(
 	os << "\\begin{axis}[grid]\n";
 	const auto numberOfCurves = dispersionSet.rbegin()->second.size();
 	for (auto [x, y] : dispersionSet) {
-		for (auto& i :y) {
+		for (auto& i : y) {
 			if (i.real() < DBL_EPSILON)
 				i = { -i.imag(),0 };
 		}
@@ -103,7 +103,7 @@ void plotTheDispersionalCurves(
 	//const auto maxFreq = dispersionSet.rbegin()->first;
 	for (size_t i = 0; i < numberOfCurves; i++) {
 		os << "\\addplot[smooth, black] plot coordinates{\n";
-		for (auto [x,y] : dispersionSet) {
+		for (auto [x, y] : dispersionSet) {
 			if (i < y.size())
 			{
 				os << "(" << y[i].real() << ", " << x << ") ";
@@ -123,35 +123,38 @@ int main() {
 	const auto mass = 1.0;// масса штампа
 	const auto kappa = 5.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
-	
-	size_t size = 80;
+
+	size_t size = 100;
+	const std::vector<std::complex<double>> sol(size, { 1.0, 0 });
+	const std::vector<std::complex<double>> sol1(size + 1, { 1.0, 0 });
 	const double a = 2.0;
 	{
-		layer_constant l = { mu, rho, "roots.txt"/*kappa*/};
+		layer_constant l = { mu, rho, "roots.txt"/*kappa*/ };
 		//l.save_to_file("roots.txt");
+		/*
 		const auto h = 2 * a / (double)size;
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size, mm);
 		auto sol = matrix.linSolve(vector<complex<double>>(size, { 1,0 }));
 		const complex<double> integral_ = h * std::accumulate(sol.begin(), sol.end(), complex<double>());
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
-		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
+		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });*/
 		std::cout << l.displacement(0, 0.5, sol, a) << std::endl;
-		plotTheWaveField(h, { {"red", sol} }, "1.txt", -a  + h / 2); 
+		// plotTheWaveField(h, { {"red", sol} }, "1.txt", -a  + h / 2); 
 	}
-	
+
 	{
 		layer_linear l = { mu, rho, "roots.txt" };
-		const auto h = 2 * a / (double)size;
+		/*const auto h = 2 * a / (double)size;
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size + 1, mm);
 		auto sol = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
 		const complex<double> integral_ = h * (std::accumulate(sol.begin() + 1, sol.end() - 1, complex<double>())
 			+ 0.5 * (sol.front() + sol.back()));
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
-		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
-		std::cout << l.displacement(0, 0.5, sol, a) << std::endl;
-		plotTheWaveField(h, { {"black", sol} }, "2.txt", -a);
+		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });*/
+		std::cout << l.displacement(0, 0.5, sol1, a) << std::endl;
+		//plotTheWaveField(h, { {"black", sol} }, "2.txt", -a);
 	}//*/
 	system("pause");
 }
