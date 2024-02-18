@@ -28,15 +28,17 @@ std::complex<double> layer_constant::int_auxiliary(std::complex<double> tau,
 	if (x_1 <= a)
 	{
 		const auto diff = exp(I * alpha * a) - exp(I * alpha * b);
-		return tau * exp(-I * alpha * x_1) * diff * I / alpha;
+		const auto result = tau * exp(-I * alpha * x_1) * diff * I / alpha;
+		return result;
 	}
 	if (x_1 >= b)
 	{
 		const auto diff = exp(-I * alpha * b) - exp(-I * alpha * a);
-		return tau * exp(I * alpha * x_1) * diff * I / alpha;
+		const auto result = tau * exp(I * alpha * x_1) * diff * I / alpha;
+		return result;
 	}
-	const auto left = int_auxiliary(tau, alpha, x_1, a, x_1);
-	const auto right = int_auxiliary(tau, alpha, x_1, x_1, b);
+	const auto right = -I * (exp(I * alpha * (b - x_1)) - 1.0) / alpha;
+	const auto left = -I * (exp(I * alpha * (x_1 - a)) - 1.0) / alpha;
 	return tau * (left + right);
 }
 

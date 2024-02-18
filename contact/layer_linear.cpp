@@ -94,9 +94,9 @@ std::complex<double> layer_linear::int_auxiliary(std::complex<double> tau_left,
 		const auto left = 1.0 / alpha / alpha / (a - b) *
 			(exp(I * alpha * (b - x_1)) - exp(I * alpha * (a - x_1))
 				+ I * alpha * (a - b) * exp(I * alpha * (a - x_1)));
-		const auto right = 1.0 / alpha / alpha / (a - b) *
+		const auto right = -1.0 / alpha / alpha / (a - b) *
 			(exp(I * alpha * (b - x_1)) - exp(I * alpha * (a - x_1))
-				- I * alpha * (a - b) * exp(I * alpha * (b - x_1)));
+				+ I * alpha * (a - b) * exp(I * alpha * (b - x_1)));
 		return tau_left * left + tau_right * right;
 	}
 	if (x_1 >= b)
@@ -115,8 +115,8 @@ std::complex<double> layer_linear::int_auxiliary(std::complex<double> tau_left,
 		(exp(I * alpha * (x_1 - a)) + I * alpha * (a - b)
 			* exp(I * alpha * (x_1 - a)) - 1.0 + I * alpha * (b - x_1));
 	const auto right_0 = -1.0 / (a - b) / alpha / alpha * (-1.0 + I * alpha 
-		* (x_1 - a) + exp(I * alpha * (b - x_1) + I * alpha * (a - b) 
-			* exp(I * alpha * (b - x_1))));
+		* (x_1 - a) + exp(I * alpha * (b - x_1)) + I * alpha * (a - b) 
+			* exp(I * alpha * (b - x_1)));
 	const auto right_1 = -1.0 / (a - b) / alpha / alpha * (-exp(I * alpha * (x_1 - a))
 		+ 1.0 + I * alpha * (x_1 - a));
 	return tau_left * (left_0 + right_0) + tau_right * (left_1 + right_1);

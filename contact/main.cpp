@@ -124,7 +124,7 @@ int main() {
 	const auto kappa = 5.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 
-	size_t size = 100;
+	size_t size = 20;
 	const std::vector<std::complex<double>> sol(size, { 1.0, 0 });
 	const std::vector<std::complex<double>> sol1(size + 1, { 1.0, 0 });
 	const double a = 2.0;
