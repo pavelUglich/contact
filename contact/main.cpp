@@ -123,38 +123,45 @@ int main() {
 	const auto mass = 1.0;// масса штампа
 	const auto kappa = 5.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
-
+	const double y = .001;
 	size_t size = 20;
-	const std::vector<std::complex<double>> sol(size, { 1.0, 0 });
-	const std::vector<std::complex<double>> sol1(size + 1, { 1.0, 0 });
-	const double a = 2.0;
+	//const std::vector<std::complex<double>> sol(size, { 1.0, 0 });
+	//const std::vector<std::complex<double>> sol1(size + 1, { 1.0, 0 });
+	std::vector<std::complex<double>> wavefield(size);
+	std::vector<std::complex<double>> wavefield1(size + 1);
+	const double a = 1.0;
+	const auto h = 2 * a / (double)size;
 	{
 		layer_constant l = { mu, rho, "roots.txt"/*kappa*/ };
-		//l.save_to_file("roots.txt");
-		/*
-		const auto h = 2 * a / (double)size;
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size, mm);
 		auto sol = matrix.linSolve(vector<complex<double>>(size, { 1,0 }));
 		const complex<double> integral_ = h * std::accumulate(sol.begin(), sol.end(), complex<double>());
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
-		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });*/
-		std::cout << l.displacement(0, 0.5, sol, a) << std::endl;
-		// plotTheWaveField(h, { {"red", sol} }, "1.txt", -a  + h / 2); 
+		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
+		for (size_t i = 0; i < size; i++)
+		{
+			const double x = -a + (i + 0.5) * h;
+			wavefield[i] = l.displacement(x, y, sol, a);
+		}
+		//std::cout << l.displacement(0, 0.5, sol, a) << std::endl;
 	}
 
 	{
 		layer_linear l = { mu, rho, "roots.txt" };
-		/*const auto h = 2 * a / (double)size;
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size + 1, mm);
 		auto sol = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
 		const complex<double> integral_ = h * (std::accumulate(sol.begin() + 1, sol.end() - 1, complex<double>())
 			+ 0.5 * (sol.front() + sol.back()));
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
-		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });*/
-		std::cout << l.displacement(0, 0.5, sol1, a) << std::endl;
-		//plotTheWaveField(h, { {"black", sol} }, "2.txt", -a);
+		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
+		for (size_t i = 0; i <= size; i++)
+		{
+			const double x = -a + i * h;
+			wavefield1[i] = l.displacement(x, y, sol, a);
+		}
 	}//*/
+	plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
 	system("pause");
 }
