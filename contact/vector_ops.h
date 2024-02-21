@@ -74,9 +74,9 @@ std::vector<T> operator*(
 }
 
 template<class T>
-std::vector<double> operator*(
-	const SquareMatrix<double>& matrix,
-	const std::vector<double>& vector)
+std::vector<T> operator*(
+	const SquareMatrix<T>& matrix,
+	const std::vector<T>& vector)
 {
 	return matrix.getElements() * vector;
 }

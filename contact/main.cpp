@@ -139,14 +139,17 @@ int main() {
 		const complex<double> integral_ = h * std::accumulate(sol.begin(), sol.end(), complex<double>());
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
-		for (size_t i = 0; i < size; i++)
+		/*for (size_t i = 0; i < size; i++)
 		{
 			const double x = -a + (i + 0.5) * h;
 			wavefield[i] = l.displacement(x, y, sol, a);
-		}
-		//std::cout << l.displacement(0, 0.5, sol, a) << std::endl;
+		}*/
+		const auto rp = matrix * sol;
+		cout << rp.front() << endl;
+		cout << matrix.getElements().front().front() << endl;
+		std::cout << l.displacement(-a + 0.5 * h, 1.0, sol, a) << std::endl;
 	}
-
+	/*
 	{
 		layer_linear l = { mu, rho, "roots.txt" };
 		const auto mm = l.matrix(a, size);
@@ -162,6 +165,6 @@ int main() {
 			wavefield1[i] = l.displacement(x, y, sol, a);
 		}
 	}//*/
-	plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
+	//plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
 	system("pause");
 }
