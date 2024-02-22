@@ -18,7 +18,7 @@ public:
 	/// </summary>
 	/// <param name="uu">аргумент B</param>
 	/// <returns></returns>
-	complex<double> b_constant(double uu) const;
+	complex<double> b_constant(double uu, double y = 1.0) const;
 
 	/// <summary>
 	/// конструктор

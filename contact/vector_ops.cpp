@@ -47,20 +47,7 @@ std::vector<double> operator*(double number,
 	return result;
 }
 */
-double operator*(const std::vector<double>& left, 
-	const std::vector<double>& right)
-{
-	if (left.size() != right.size())
-	{
-		throw std::invalid_argument("");
-	}
-	double result = 0;
-	for (size_t i = 0; i < left.size(); i++)
-	{
-		result += left[i] * right[i];
-	}
-	return result;
-}
+
 
 double norm_(const std::vector<double>& vector)
 {

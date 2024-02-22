@@ -48,9 +48,21 @@ std::vector<T> operator*(T number,
 	return result;
 }
 
-
-double operator*(const std::vector<double>& left, 
-	const std::vector<double>& right);
+template<class T>
+double operator*(const std::vector<T>& left,
+	const std::vector<T>& right)
+{
+	if (left.size() != right.size())
+	{
+		throw std::invalid_argument("");
+	}
+	T result();
+	for (size_t i = 0; i < left.size(); i++)
+	{
+		result += left[i] * right[i];
+	}
+	return result;
+}
 
 double norm_(const std::vector<double>& vector);
 double norm_(const std::vector<std::complex<double>>& vector);

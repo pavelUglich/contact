@@ -36,6 +36,12 @@
     <ClCompile Include="layer_linear.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="constant_element.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="linear_element.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
     <ClCompile Include="boundary_element.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -75,6 +81,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="boundary_element.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="constant_element.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="linear_element.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

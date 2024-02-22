@@ -42,7 +42,7 @@ std::complex<double> layer_constant::int_auxiliary(std::complex<double> tau,
 	return tau * (left + right);
 }
 
-complex<double> layer_constant::b_constant(double uu) const
+complex<double> layer_constant::b_constant(double uu, double y) const
 {
 	complex<double> result = { 0,0 };
 	const auto _roots = this->get_roots();
@@ -51,7 +51,7 @@ complex<double> layer_constant::b_constant(double uu) const
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
 		const complex<double> alpha = _roots[i];
-		const auto u = smaller_system(alpha).solve(0, 1, { 0,1 });
+		const auto u = smaller_system(alpha).solve(0, y, { 0,1 });
 		const auto term = u.front() * exp(I * alpha * uu) / _residues[i] / alpha;
 		result += term;
 		if (abs(term) < _tolerance)

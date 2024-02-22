@@ -167,11 +167,11 @@ public:
 	/// <param name="x_2"></param>
 	/// <param name="alpha"></param>
 	/// <returns></returns>
-	std::complex<double> displacement_auxiliary(double x_2, 
-		std::complex<double> alpha) const;
+	//std::complex<double> displacement_auxiliary(double x_2, 
+	//	std::complex<double> alpha) const;
 
-	std::vector<std::complex<double>> displacement_auxiliary(const std::vector<double>& x_2,
-		std::complex<double> alpha) const;
+	//std::vector<std::complex<double>> displacement_auxiliary(const std::vector<double>& x_2,
+	//	std::complex<double> alpha) const;
 
 	void process_points_vector(std::vector<double>& points) const;
 

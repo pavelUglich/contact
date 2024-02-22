@@ -150,6 +150,7 @@ std::complex<double> layer::displacement(double x_1, double x_2,
 	return I * result;
 }
 
+/*
 std::complex<double> layer::displacement_auxiliary(double x_2,
 	std::complex<double> alpha) const
 {
@@ -172,7 +173,7 @@ std::vector<std::complex<double>> layer::displacement_auxiliary(
 		result[i] = solution[i][0] / denumerator;
 	}
 	return result;
-}
+}*/
 
 void layer::process_points_vector(std::vector<double>& points) const
 {

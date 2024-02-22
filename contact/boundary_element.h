@@ -1,9 +1,14 @@
 ﻿#pragma once
 #include <vector>
 #include <complex>
+
+/// <summary>
+/// виртуальный класс
+/// </summary>
 class boundary_element
 {
 	// концы отрезка
+protected:
 	double _left;
 	double _right;
 	std::vector<double> _nodal_points;
@@ -18,7 +23,12 @@ public:
 	/// <param name="alpha">показатель экспоненты</param>
 	/// <param name="xi">горизонтальная координата</param>
 	/// <returns></returns>
-	std::complex<double> evaluate(std::complex<double> alpha, double xi) const;
+	virtual std::vector<std::complex<double>> evaluate(std::complex<double> alpha,
+		double xi) const = 0;
+
+	std::complex<double> calculate(std::complex<double> alpha, double xi, 
+		const std::vector<std::complex<double>>& nodal_values) const;
+
 
 };
 
