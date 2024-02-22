@@ -8,34 +8,28 @@ std::vector<std::complex<double>> linear_element::evaluate(
 	const auto mm = 1.0 / alpha / alpha / (_left - _right);
 	if (xi <= _left)
 	{
-		const auto left = mm * (exp(I * alpha * (_right - xi)) -
-			exp(I * alpha * (_left - xi))
-			+ I * alpha * (_left - _right) * exp(I * alpha * (_left - xi)));
-		const auto right = -mm *
-			(exp(I * alpha * (_right - xi)) - exp(I * alpha * (_left - xi))
-				+ I * alpha * (_left - _right) * exp(I * alpha * (_right - xi)));
+		const auto er = exp(I * alpha * (_right - xi));
+		const auto el = exp(I * alpha * (_left - xi));
+		const auto left = mm * (er - el + I * alpha * (_left - _right) * el);
+		const auto right = -mm * (er - el + I * alpha * (_left - _right) * er);
 		return { left, right };
 	}
 	if (xi >= _right)
 	{
-		const auto left = mm *
-			(exp(I * alpha * (xi - _right)) - exp(I * alpha * (xi - _left))
-				- I * alpha * (_left - _right) * exp(I * alpha * (xi - _left)));
-		const auto right = mm *
-			(exp(I * alpha * (xi - _left)) - exp(I * alpha * (xi - _right))
-				+ I * alpha * (_left - _right) * exp(I * alpha * (xi - _right)));
+		const auto er = exp(I * alpha * (xi - _right));
+		const auto el = exp(I * alpha * (xi - _left));
+		const auto left = mm * (er - el - I * alpha * (_left - _right) * el);
+		const auto right = mm * (el - er + I * alpha * (_left - _right) * er);
 		return { left, right };
 	}
-	const auto left_0 = mm * (alpha * I * (xi - _right)
-		- 1.0 + exp(I * alpha * (_right - xi)));
-	const auto left_1 = -mm *
-		(exp(I * alpha * (xi - _left)) + I * alpha * (_left - _right)
-			* exp(I * alpha * (xi - _left)) - 1.0 + I * alpha * (_right - xi));
-	const auto right_0 = -mm * (-1.0 + I * alpha
-		* (xi - _left) + exp(I * alpha * (_right - xi)) + I * alpha * (_left - _right)
-		* exp(I * alpha * (_right - xi)));
-	const auto right_1 = -mm * (-exp(I * alpha * (xi - _left))
-		+ 1.0 + I * alpha * (xi - _left));
+	const auto erx = exp(I * alpha * (_right - xi));
+	const auto exl = exp(I * alpha * (_right - xi));
+	const auto left_0 = mm * (alpha * I * (xi - _right) - 1.0 + erx);
+	const auto left_1 = -mm * (exl + I * alpha * (_left - _right) * exl - 1.0 +
+		I * alpha * (_right - xi));
+	const auto right_0 = -mm * (-1.0 + I * alpha * (xi - _left) + erx +
+		I * alpha * (_left - _right) * erx);
+	const auto right_1 = -mm * (-exl + 1.0 + I * alpha * (xi - _left));
 	return { left_0 + right_0,left_1 + right_1 };
 }
 
