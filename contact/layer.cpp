@@ -3,6 +3,7 @@
 #include <numeric>
 #include <fstream>
 #include <iomanip>
+#include <set>
 
 
 vector<complex<double>> layer::function_and_derivative(complex<double> alpha) const {
@@ -112,6 +113,17 @@ double layer::get_tolerance() const
 	return this->_tolerance;
 }
 
+
+vector<complex<double>> layer::row(const std::vector<double>& nodes) const
+{
+	vector<complex<double>> result(nodes.size());
+	for (size_t i = 0; i < length; i++)
+	{
+
+	}
+	return vector<complex<double>>();
+}
+
 vector<complex<double>> layer::get_roots() const
 {
 	return this->_roots;
@@ -135,7 +147,20 @@ complex<double> layer::right_part(double xi_1, double xi_2) const {
 	return I * result;
 }
 
-std::complex<double> layer::displacement(double x_1, double x_2, 
+vector<vector<complex<double>>> layer::new_matrix() const
+{
+	vector<vector<complex<double>>> result;
+	const auto nodes = get_nodal_points(this->_elements);
+	const size_t matrix_size = nodes.size();
+	vector<vector<complex<double>>> result(matrix_size);
+	for (size_t i = 0; i < result.size(); i++)
+	{
+		result[i] = row(nodes);
+	}
+	return result;
+}
+
+std::complex<double> layer::displacement(double x_1, double x_2,
 	const std::vector<std::complex<double>>& solution, double a) const
 {
 	const auto roots = get_roots();
@@ -149,31 +174,6 @@ std::complex<double> layer::displacement(double x_1, double x_2,
 	}
 	return I * result;
 }
-
-/*
-std::complex<double> layer::displacement_auxiliary(double x_2,
-	std::complex<double> alpha) const
-{
-	std::vector<double> points = { x_2 };
-	process_points_vector(points);
-	const auto solution = this->bigger_system(alpha).solve(points, { 0,1,0,0 });
-	return solution[1][0] / solution.back().back();
-}
-
-std::vector<std::complex<double>> layer::displacement_auxiliary(
-	const std::vector<double>& x_2, std::complex<double> alpha) const
-{
-	auto points = x_2;
-	process_points_vector(points);
-	auto solution = this->bigger_system(alpha).solve(points, { 0,1,0,0 });
-	const auto denumerator = solution.back().back();
-	std::vector<std::complex<double>> result(solution.size());
-	for (size_t i = 0; i < result.size(); i++)
-	{
-		result[i] = solution[i][0] / denumerator;
-	}
-	return result;
-}*/
 
 void layer::process_points_vector(std::vector<double>& points) const
 {
@@ -224,9 +224,35 @@ layer::layer(const function<double(double)>& mu,
 	roots(roots_number);
 }
 
-layer::layer(const function<double(double)>& mu, 
-	const function<double(double)>& rho, const std::string& filename, 
+layer::layer(const function<double(double)>& mu,
+	const function<double(double)>& rho, const std::string& filename,
 	double tolerance) :_mu(mu), _rho(rho), _tolerance(tolerance)
 {
 	this->load_from_file(filename);
+}
+
+layer::layer(const function<double(double)>& mu,
+	const function<double(double)>& rho, double kappa,
+	const std::vector<boundary_element*>& elements, size_t roots_number,
+	double tolerance) :layer(mu, rho, kappa, roots_number, tolerance),
+	_elements(elements)
+{
+}
+
+layer::layer(const function<double(double)>& mu,
+	const function<double(double)>& rho, const std::string& filename,
+	const std::vector<boundary_element*>& elements, double tolerance)
+	:layer(mu, rho, filename, tolerance), _elements(elements)
+{
+}
+
+std::vector<double> get_nodal_points(const std::vector<boundary_element*> elements)
+{
+	std::set<double> result;
+	for (const auto& element : elements)
+	{
+		const auto& points = element->get_nodal_points();
+		result.insert(points.begin(), points.end());
+	}
+	return std::vector<double>(result.begin(), result.end());
 }

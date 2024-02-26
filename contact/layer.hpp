@@ -12,12 +12,15 @@
 #include <stdio.h>
 #include <functional>
 #include"OdeSolver.h"
+#include "boundary_element.h"
 using namespace std;
-
 
 
 const size_t MAX_ROOTS_NUMBER = 50;
 const complex<double> I = { 0, 1 };
+
+std::vector<double> get_nodal_points(const std::vector<boundary_element*> elements);
+
 /// <summary>
 /// класс - абстрактный. Метод matrix - чисто абстрактный, реализация зависит 
 /// от типа граничного элемента
@@ -37,6 +40,8 @@ class layer {
 	// точность вычислений
 	double _tolerance;
 
+	// набор элементов
+	std::vector<boundary_element*> _elements;
 
 	/// <summary>
 	/// вспомогательная функция для отыскания значения трансформанты напряжения
@@ -107,7 +112,7 @@ protected:
 	/// </summary>
 	/// <returns>точность</returns>
 	double get_tolerance() const;
-
+	vector<complex<double>> row(const std::vector<double>& nodes) const;
 public:
 
 	/// <summary>
@@ -132,6 +137,16 @@ public:
 		const function<double(double)>& rho, const std::string& filename, 
 		double tolerance = 0.1e-5);
 
+	layer(const function<double(double)>& mu,
+		const function<double(double)>& rho, double kappa,
+		const std::vector<boundary_element* >& elements,
+		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5);
+
+	layer(const function<double(double)>& mu,
+		const function<double(double)>& rho, const std::string& filename,
+		const std::vector<boundary_element* >& elements,
+		double tolerance = 0.1e-5);
+
 	/// <summary>
 	/// правая часть интегрального уравнения
 	/// </summary>
@@ -148,6 +163,8 @@ public:
 	/// <returns></returns>
 	virtual vector<vector<complex<double>>> matrix(double a, size_t size) 
 		const = 0;
+
+	vector<vector<complex<double>>> new_matrix() const;
 		
 	/// <summary>
 	/// перемещение 
@@ -160,26 +177,15 @@ public:
 	std::complex<double> displacement(double x_1, double x_2, 
 		const std::vector<std::complex<double>>& solution, double a) const;
 
-	/// <summary>
-	/// вспомогательный метод для отыскания поля перемещений (первый сомножитель в
-	/// формуле (27), вычисляется отдельно для каждого корня)
-	/// </summary>
-	/// <param name="x_2"></param>
-	/// <param name="alpha"></param>
-	/// <returns></returns>
-	//std::complex<double> displacement_auxiliary(double x_2, 
-	//	std::complex<double> alpha) const;
-
-	//std::vector<std::complex<double>> displacement_auxiliary(const std::vector<double>& x_2,
-	//	std::complex<double> alpha) const;
 
 	void process_points_vector(std::vector<double>& points) const;
-
-
 	void save_to_file(const std::string& filename) const;
 	void load_from_file(const std::string& filename);
 
-	virtual ~layer() = default;
+	virtual ~layer() {
+		for (auto& element : this->_elements)
+			delete element;
+	};
 };
 #endif /* layer_hpp */
 

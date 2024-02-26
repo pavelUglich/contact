@@ -26,9 +26,9 @@ public:
 	virtual std::vector<std::complex<double>> evaluate(std::complex<double> alpha,
 		double xi) const = 0;
 
-	std::complex<double> calculate(std::complex<double> alpha, double xi, 
-		const std::vector<std::complex<double>>& nodal_values) const;
+	std::vector<double> get_nodal_points() const;
 
 
+	virtual ~boundary_element() = default;
 };
 
