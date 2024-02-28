@@ -36,6 +36,11 @@ public:
 		const function<double(double)>& rho, const std::string& filename,
 		double tolerance = 0.1e-5);
 
+	layer_constant(const function<double(double)>& mu,
+		const function<double(double)>& rho, const std::string& filename,
+		const std::vector<boundary_element* >& elements,
+		double tolerance = 0.1e-5);
+
 	vector<vector<complex<double>>> matrix(double a, size_t size) const 
 		override;
 

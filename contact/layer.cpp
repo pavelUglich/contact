@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iomanip>
 #include <set>
+#include <map>
 
 
 vector<complex<double>> layer::function_and_derivative(complex<double> alpha) const {
@@ -114,14 +115,33 @@ double layer::get_tolerance() const
 }
 
 
-vector<complex<double>> layer::row(const std::vector<double>& nodes) const
+vector<complex<double>> layer::row(double node, size_t size) const
 {
-	vector<complex<double>> result(nodes.size());
-	for (size_t i = 0; i < length; i++)
+	vector<complex<double>> result(size);
+	for (size_t i = 0; i < _roots.size(); i++)
 	{
-
+		const auto multiplier = smaller_system(_roots[i]).solve(0, 1, { 0,1 })
+			.front() / _residues[i];
+		result = result + multiplier * row(node, size, _roots[i]);
 	}
 	return vector<complex<double>>();
+}
+
+vector<complex<double>> layer::row(double node,
+	size_t size, complex<double> root) const
+{
+	std::map<double, complex<double>> result;
+	for (const auto& element : this->_elements)
+	{
+		const auto val = element->evaluate(root, node);
+		for (auto x : val)
+		{
+			result[x.first] += x.second;
+		}
+	}
+	const std::vector<complex<double>> v(result.size());
+	std::transform(result.begin(), result.end(), v.begin(), [](auto x) {return x.second; });
+	return v;
 }
 
 vector<complex<double>> layer::get_roots() const
@@ -149,13 +169,12 @@ complex<double> layer::right_part(double xi_1, double xi_2) const {
 
 vector<vector<complex<double>>> layer::new_matrix() const
 {
-	vector<vector<complex<double>>> result;
 	const auto nodes = get_nodal_points(this->_elements);
 	const size_t matrix_size = nodes.size();
 	vector<vector<complex<double>>> result(matrix_size);
-	for (size_t i = 0; i < result.size(); i++)
+	for (size_t i = 0; i < matrix_size; i++)
 	{
-		result[i] = row(nodes);
+		result[i] = row(nodes[i], matrix_size);
 	}
 	return result;
 }
@@ -217,6 +236,11 @@ void layer::load_from_file(const std::string& filename)
 	ifs.close();
 }
 
+inline layer::~layer() {
+	for (auto& element : this->_elements)
+		delete element;
+}
+
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, double kappa, size_t roots_number,
 	double tolerance) :_mu(mu), _rho(rho), _kappa(kappa), _tolerance(tolerance)
@@ -234,16 +258,17 @@ layer::layer(const function<double(double)>& mu,
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, double kappa,
 	const std::vector<boundary_element*>& elements, size_t roots_number,
-	double tolerance) :layer(mu, rho, kappa, roots_number, tolerance),
-	_elements(elements)
+	double tolerance) :layer(mu, rho, kappa, roots_number, tolerance)	
 {
+	this->_elements = elements;
 }
 
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, const std::string& filename,
 	const std::vector<boundary_element*>& elements, double tolerance)
-	:layer(mu, rho, filename, tolerance), _elements(elements)
+	:layer(mu, rho, filename, tolerance)
 {
+	this->_elements = elements;
 }
 
 std::vector<double> get_nodal_points(const std::vector<boundary_element*> elements)

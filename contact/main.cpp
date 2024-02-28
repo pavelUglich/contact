@@ -4,6 +4,7 @@
 #include "layer_constant.h"
 #include "layer_linear.h"
 #include "Integral.h"
+#include "constant_element.h"
 
 const double pi = acos(-1.0);
 enum class element_type { constant, linear };
@@ -131,8 +132,16 @@ int main() {
 	std::vector<std::complex<double>> wavefield1(size + 1);
 	const double a = 1.0;
 	const auto h = 2 * a / (double)size;
+	std::vector<constant_element*> elements(size);
+	double left = -a;
+	for (size_t i = 0; i < size; i++)
 	{
-		layer_constant l = { mu, rho, "roots.txt"/*kappa*/ };
+		double right = left + h;
+		elements[i] = new constant_element(left, right);
+		left = right;
+	}
+	{
+		layer_constant l = /*{mu, rho, "roots.txt", elements};// = */{ mu, rho, "roots.txt"};
 		const auto mm = l.matrix(a, size);
 		auto matrix = SquareMatrix<complex<double>>(size, mm);
 		auto sol = matrix.linSolve(vector<complex<double>>(size, { 1,0 }));

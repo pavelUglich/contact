@@ -112,7 +112,8 @@ protected:
 	/// </summary>
 	/// <returns>точность</returns>
 	double get_tolerance() const;
-	vector<complex<double>> row(const std::vector<double>& nodes) const;
+	vector<complex<double>> row(double node, size_t size) const;
+	vector<complex<double>> row(double node, size_t size, complex<double> root) const;
 public:
 
 	/// <summary>
@@ -182,10 +183,7 @@ public:
 	void save_to_file(const std::string& filename) const;
 	void load_from_file(const std::string& filename);
 
-	virtual ~layer() {
-		for (auto& element : this->_elements)
-			delete element;
-	};
+	virtual ~layer();;
 };
 #endif /* layer_hpp */
 

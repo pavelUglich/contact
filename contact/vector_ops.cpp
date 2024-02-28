@@ -2,51 +2,6 @@
 #include <stdexcept>
 #include <algorithm>
 #include <numeric>
-//#import <float.h>
-
-/*
-std::vector<double> operator+(const std::vector<double>& left,
-	const std::vector<double>& right)
-{
-	if (left.size() != right.size())
-	{
-		throw std::invalid_argument("");
-	}
-	std::vector<double> result(left.size(), 0);
-	for (size_t i = 0; i < result.size(); i++)
-	{
-		result[i] = left[i] + right[i];
-	}
-	return result;
-}
-*/
-
-/*
-std::vector<double> operator-(const std::vector<double>& left,
-	const std::vector<double>& right)
-{
-	if (left.size() != right.size())
-	{
-		throw std::invalid_argument("");
-	}
-	std::vector<double> result(left.size(), 0);
-	for (size_t i = 0; i < result.size(); i++)
-	{
-		result[i] = left[i] - right[i];
-	}
-	return result;
-}*/
-
-/*
-std::vector<double> operator*(double number,
-	const std::vector<double>& vector)
-{
-	std::vector<double> result(vector);
-	std::transform(result.begin(), result.end(),
-		result.begin(), [number](auto x) {return x * number; });
-	return result;
-}
-*/
 
 
 double norm_(const std::vector<double>& vector)
@@ -75,25 +30,7 @@ double normalize(std::vector<double>& vector)
 	return _norm;
 }
 
-//template<class T>
-/*std::vector<double> operator*(const std::vector<std::vector<double>>& matrix,
-	const std::vector<double>& vector)
-{
-	std::vector<double> result(matrix.size());
-	for (size_t i = 0; i < result.size(); i++)
-	{
-		for (size_t ii = 0; ii < vector.size(); ii++)
-		{
-			result[i] += matrix[i][ii] * vector[ii];
-		}
-	}
-	return result;
-}*/
 
-/*std::vector<double> operator*(const SquareMatrix<double>& matrix, const std::vector<double>& vector)
-{
-	return matrix.getElements() * vector;
-}*/
 
 double frobenius_norm(const std::vector<std::vector<double>>& matrix)
 {

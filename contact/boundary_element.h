@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <vector>
+#include <map>
 #include <complex>
 
 /// <summary>
@@ -23,7 +24,7 @@ public:
 	/// <param name="alpha">показатель экспоненты</param>
 	/// <param name="xi">горизонтальная координата</param>
 	/// <returns></returns>
-	virtual std::vector<std::complex<double>> evaluate(std::complex<double> alpha,
+	virtual std::map<double, std::complex<double>> evaluate(std::complex<double> alpha,
 		double xi) const = 0;
 
 	std::vector<double> get_nodal_points() const;

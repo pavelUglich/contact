@@ -74,6 +74,13 @@ layer_constant::layer_constant(const function<double(double)>& mu,
 {
 }
 
+layer_constant::layer_constant(const function<double(double)>& mu, 
+	const function<double(double)>& rho, const std::string& filename, 
+	const std::vector<boundary_element*>& elements, double tolerance):
+	layer(mu, rho, filename, elements, tolerance)
+{
+}
+
 vector<vector<complex<double>>>
 layer_constant::matrix(double a, size_t size) const
 {

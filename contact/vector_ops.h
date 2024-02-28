@@ -56,10 +56,10 @@ double operator*(const std::vector<T>& left,
 	{
 		throw std::invalid_argument("");
 	}
-	T result();
+	T result = 0;
 	for (size_t i = 0; i < left.size(); i++)
 	{
-		result += left[i] * right[i];
+		result += (left[i] * right[i]);
 	}
 	return result;
 }
