@@ -122,9 +122,9 @@ vector<complex<double>> layer::row(double node, size_t size) const
 	{
 		const auto multiplier = smaller_system(_roots[i]).solve(0, 1, { 0,1 })
 			.front() / _residues[i];
-		result = result + multiplier * row(node, size, _roots[i]);
+		result = result + I * multiplier * row(node, size, _roots[i]);
 	}
-	return vector<complex<double>>();
+	return result;
 }
 
 vector<complex<double>> layer::row(double node,
@@ -139,7 +139,7 @@ vector<complex<double>> layer::row(double node,
 			result[x.first] += x.second;
 		}
 	}
-	const std::vector<complex<double>> v(result.size());
+	std::vector<complex<double>> v(result.size());
 	std::transform(result.begin(), result.end(), v.begin(), [](auto x) {return x.second; });
 	return v;
 }

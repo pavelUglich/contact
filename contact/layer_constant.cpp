@@ -79,6 +79,7 @@ layer_constant::layer_constant(const function<double(double)>& mu,
 	const std::vector<boundary_element*>& elements, double tolerance):
 	layer(mu, rho, filename, elements, tolerance)
 {
+	//this->_elements = elements;
 }
 
 vector<vector<complex<double>>>

@@ -125,14 +125,14 @@ int main() {
 	const auto kappa = 5.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 	const double y = .001;
-	size_t size = 20;
+	size_t size = 2;
 	//const std::vector<std::complex<double>> sol(size, { 1.0, 0 });
 	//const std::vector<std::complex<double>> sol1(size + 1, { 1.0, 0 });
 	std::vector<std::complex<double>> wavefield(size);
 	std::vector<std::complex<double>> wavefield1(size + 1);
 	const double a = 1.0;
 	const auto h = 2 * a / (double)size;
-	std::vector<constant_element*> elements(size);
+	std::vector<boundary_element*> elements(size);
 	double left = -a;
 	for (size_t i = 0; i < size; i++)
 	{
@@ -141,9 +141,11 @@ int main() {
 		left = right;
 	}
 	{
-		layer_constant l = /*{mu, rho, "roots.txt", elements};// = */{ mu, rho, "roots.txt"};
+		string file = "roots.txt";
+		layer_constant l(mu, rho, file, elements);//{ mu, rho, "roots.txt"};
 		const auto mm = l.matrix(a, size);
-		auto matrix = SquareMatrix<complex<double>>(size, mm);
+		const auto mmm = l.new_matrix();
+		auto matrix = SquareMatrix<complex<double>>(size, mmm);
 		auto sol = matrix.linSolve(vector<complex<double>>(size, { 1,0 }));
 		const complex<double> integral_ = h * std::accumulate(sol.begin(), sol.end(), complex<double>());
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
