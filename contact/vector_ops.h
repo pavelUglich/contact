@@ -49,7 +49,7 @@ std::vector<T> operator*(T number,
 }
 
 template<class T>
-double operator*(const std::vector<T>& left,
+T operator*(const std::vector<T>& left,
 	const std::vector<T>& right)
 {
 	if (left.size() != right.size())

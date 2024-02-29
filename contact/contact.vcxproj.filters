@@ -30,12 +30,6 @@
     <ClCompile Include="plots.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="layer_constant.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="layer_linear.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="constant_element.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -69,12 +63,6 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="plots.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="layer_constant.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="layer_linear.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">

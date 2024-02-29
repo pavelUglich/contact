@@ -19,7 +19,7 @@ using namespace std;
 const size_t MAX_ROOTS_NUMBER = 50;
 const complex<double> I = { 0, 1 };
 
-std::vector<double> get_nodal_points(const std::vector<boundary_element*> elements);
+std::vector<double> get_nodal_points(const std::vector<boundary_element*>& elements);
 
 /// <summary>
 /// класс - абстрактный. Метод matrix - чисто абстрактный, реализация зависит 
@@ -72,20 +72,6 @@ class layer {
 	/// <param name="roots_number">количество корней</param>
 	void roots(size_t roots_number);
 
-	/// <summary>
-	/// интегральный множитель в формуле (27)
-	/// </summary>
-	/// <param name="tau"></param>
-	/// <param name="a"></param>
-	/// <param name="size"></param>
-	/// <param name="alpha"></param>
-	/// <returns></returns>
-	virtual std::complex<double> evaluate_exp(
-		const std::vector<std::complex<double>>& tau, double a, double x_1, 
-		std::complex<double> alpha) const = 0;
-
-
-
 protected:
 	/// <summary>
 	/// система ОДУ в трансформантах (используем, если производная по \alpha не нужна)
@@ -112,9 +98,9 @@ protected:
 	/// </summary>
 	/// <returns>точность</returns>
 	double get_tolerance() const;
-	vector<complex<double>> row(double node, size_t size) const;
-	vector<complex<double>> row(double node, size_t size, complex<double> root) const;
 public:
+	vector<complex<double>> row(double node, complex<double> root) const;
+	vector<complex<double>> row(double node, size_t size, double y = 1.0) const; // временно!
 
 	/// <summary>
 	/// найти корни (метод открытый, чтобы осталась возможность построения дисперсионных кривых)
@@ -156,16 +142,7 @@ public:
 	/// <returns></returns>
 	complex<double> right_part(double xi_1, double xi_2) const;
 
-
-	/// <summary>
-	/// матрица для решения контактной задачи
-	/// </summary>
-	/// <param name="a"></param>
-	/// <returns></returns>
-	virtual vector<vector<complex<double>>> matrix(double a, size_t size) 
-		const = 0;
-
-	vector<vector<complex<double>>> new_matrix() const;
+	vector<vector<complex<double>>> matrix() const;
 		
 	/// <summary>
 	/// перемещение 
@@ -176,7 +153,7 @@ public:
 	/// <param name="a">полуширина зоны контакта</param>
 	/// <returns>перемещение</returns>
 	std::complex<double> displacement(double x_1, double x_2, 
-		const std::vector<std::complex<double>>& solution, double a) const;
+		const std::vector<std::complex<double>>& solution) const;
 
 
 	void process_points_vector(std::vector<double>& points) const;

@@ -1,14 +1,14 @@
 ﻿#include "layer.hpp"
 #include <numeric>
 #include"plots.h"
-#include "layer_constant.h"
-#include "layer_linear.h"
 #include "Integral.h"
 #include "constant_element.h"
+#include "linear_element.h"
 
 const double pi = acos(-1.0);
 enum class element_type { constant, linear };
 
+/*
 layer* make_layer(element_type et, const function<double(double)>& mu,
 	const function<double(double)>& rho, double kappa,
 	size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5)
@@ -23,7 +23,7 @@ layer* make_layer(element_type et, const function<double(double)>& mu,
 		break;
 	}
 	throw std::exception();
-}
+}*/
 
 complex<double> transformant(complex<double> alpha, double _kappa)
 {
@@ -70,7 +70,7 @@ map<double, vector<complex<double>>> dispersionalSet(double theHighestFrequency,
 	double kappa = 0.1;
 	const double step = 0.05;
 
-	layer_constant l(mu, rho, kappa, 5);
+	layer l(mu, rho, kappa, 5);
 	auto roots = l.get_roots();
 	while (kappa < theHighestFrequency)
 	{
@@ -122,10 +122,10 @@ int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
 	const auto mass = 1.0;// масса штампа
-	const auto kappa = 5.0; // волновое число
+	const auto kappa = 2.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
-	const double y = .001;
-	size_t size = 2;
+	const double y = .5;
+	size_t size = 20;
 	//const std::vector<std::complex<double>> sol(size, { 1.0, 0 });
 	//const std::vector<std::complex<double>> sol1(size + 1, { 1.0, 0 });
 	std::vector<std::complex<double>> wavefield(size);
@@ -140,42 +140,51 @@ int main() {
 		elements[i] = new constant_element(left, right);
 		left = right;
 	}
+	vector<complex<double>> sol, sol1;
+
 	{
-		string file = "roots.txt";
-		layer_constant l(mu, rho, file, elements);//{ mu, rho, "roots.txt"};
-		const auto mm = l.matrix(a, size);
-		const auto mmm = l.new_matrix();
+		layer l = { mu, rho, "roots.txt", elements };//(mu, rho, file, elements);//{ mu, rho, "roots.txt"};
+		const auto mmm = l.matrix();
 		auto matrix = SquareMatrix<complex<double>>(size, mmm);
-		auto sol = matrix.linSolve(vector<complex<double>>(size, { 1,0 }));
+		sol = matrix.linSolve(vector<complex<double>>(size, { 1,0 }));
 		const complex<double> integral_ = h * std::accumulate(sol.begin(), sol.end(), complex<double>());
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
-		/*for (size_t i = 0; i < size; i++)
+		for (size_t i = 0; i < size; i++)
 		{
 			const double x = -a + (i + 0.5) * h;
-			wavefield[i] = l.displacement(x, y, sol, a);
-		}*/
-		const auto rp = matrix * sol;
-		cout << rp.front() << endl;
-		cout << matrix.getElements().front().front() << endl;
-		std::cout << l.displacement(-a + 0.5 * h, 1.0, sol, a) << std::endl;
-	}
-	/*
+			wavefield[i] = l.displacement(x, y, sol);
+		}
+	}//*/
+	left = -a;
+	for (size_t i = 0; i < size; i++)
 	{
-		layer_linear l = { mu, rho, "roots.txt" };
-		const auto mm = l.matrix(a, size);
-		auto matrix = SquareMatrix<complex<double>>(size + 1, mm);
-		auto sol = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
-		const complex<double> integral_ = h * (std::accumulate(sol.begin() + 1, sol.end() - 1, complex<double>())
-			+ 0.5 * (sol.front() + sol.back()));
+		double right = left + h;
+		elements[i] = new linear_element(left, right);
+		left = right;
+	}
+
+	{
+		layer l = { mu, rho, "roots.txt", elements };
+		//const auto mmm = l.matrix(a, size);
+		const auto mmm = l.matrix();
+		auto matrix = SquareMatrix<complex<double>>(size + 1, mmm);
+		sol1 = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
+		const complex<double> integral_ = h * (std::accumulate(sol1.begin() + 1, sol1.end() - 1, complex<double>())
+			+ 0.5 * (sol1.front() + sol1.back()));
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
-		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
+		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
+		cout << l.displacement(-1.0, 0.5, sol1) << endl;
+		cout << l.displacement(1.0, 0.5, sol1) << endl;
+		//const auto row1 = l.row(-1.0, { 1.33177771432077318713993463462,0.0 });
+		const auto row2 = l.row(0.0, { 1.33177771432077318713993463462,0.0 });
 		for (size_t i = 0; i <= size; i++)
 		{
 			const double x = -a + i * h;
-			wavefield1[i] = l.displacement(x, y, sol, a);
-		}
+			wavefield1[i] = l.displacement(x, y, sol1);
+		}//*/
 	}//*/
-	//plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
+	//plotTheWaveField(h, { {"red", sol}, {"blue", sol1} }, "wf.txt", -a + h / 2);
+	plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
 	system("pause");
 }

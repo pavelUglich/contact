@@ -115,26 +115,27 @@ double layer::get_tolerance() const
 }
 
 
-vector<complex<double>> layer::row(double node, size_t size) const
+vector<complex<double>> layer::row(double node, size_t size, double y) const
 {
 	vector<complex<double>> result(size);
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
-		const auto multiplier = smaller_system(_roots[i]).solve(0, 1, { 0,1 })
+		const auto multiplier = smaller_system(_roots[i]).solve(0, y, { 0,1 })
 			.front() / _residues[i];
-		result = result + I * multiplier * row(node, size, _roots[i]);
+		const auto r = row(node, _roots[i]);
+		result = result + I * multiplier * r;
 	}
 	return result;
 }
 
 vector<complex<double>> layer::row(double node,
-	size_t size, complex<double> root) const
+	complex<double> root) const
 {
 	std::map<double, complex<double>> result;
 	for (const auto& element : this->_elements)
 	{
 		const auto val = element->evaluate(root, node);
-		for (auto x : val)
+		for (const auto& x : val)
 		{
 			result[x.first] += x.second;
 		}
@@ -167,7 +168,7 @@ complex<double> layer::right_part(double xi_1, double xi_2) const {
 	return I * result;
 }
 
-vector<vector<complex<double>>> layer::new_matrix() const
+vector<vector<complex<double>>> layer::matrix() const
 {
 	const auto nodes = get_nodal_points(this->_elements);
 	const size_t matrix_size = nodes.size();
@@ -180,18 +181,10 @@ vector<vector<complex<double>>> layer::new_matrix() const
 }
 
 std::complex<double> layer::displacement(double x_1, double x_2,
-	const std::vector<std::complex<double>>& solution, double a) const
+	const std::vector<std::complex<double>>& solution) const
 {
-	const auto roots = get_roots();
-	const auto residues = get_residues();
-	std::complex<double> result;
-	for (size_t i = 0; i < roots.size(); i++)
-	{
-		const auto numerator = smaller_system(roots[i]).solve(0, x_2, { 0,1 }).front();
-		const auto ee = evaluate_exp(solution, a, x_1, roots[i]);
-		result += numerator / residues[i] * ee;
-	}
-	return I * result;
+	const auto r = this->row(x_1, solution.size(), x_2);
+	return r * solution;
 }
 
 void layer::process_points_vector(std::vector<double>& points) const
@@ -225,13 +218,11 @@ void layer::load_from_file(const std::string& filename)
 	ifs >> this->_kappa;
 	_roots.clear();
 	_residues.clear();
-	while (!ifs.eof())
+	double re, im, re1, im1;
+	while (ifs >> re >> im >> re1 >> im1)
 	{
-		double re, im;
-		ifs >> re >> im;
 		_roots.emplace_back(re, im);
-		ifs >> re >> im;
-		_residues.emplace_back(re, im);
+		_residues.emplace_back(re1, im1);
 	}
 	ifs.close();
 }
@@ -271,7 +262,7 @@ layer::layer(const function<double(double)>& mu,
 	this->_elements = elements;
 }
 
-std::vector<double> get_nodal_points(const std::vector<boundary_element*> elements)
+std::vector<double> get_nodal_points(const std::vector<boundary_element*>& elements)
 {
 	std::set<double> result;
 	for (const auto& element : elements)

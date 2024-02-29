@@ -133,8 +133,6 @@
     <ClCompile Include="constant_element.cpp" />
     <ClCompile Include="Integral.cpp" />
     <ClCompile Include="layer.cpp" />
-    <ClCompile Include="layer_constant.cpp" />
-    <ClCompile Include="layer_linear.cpp" />
     <ClCompile Include="linear_element.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="plots.cpp" />
@@ -146,8 +144,6 @@
     <ClInclude Include="constant_element.h" />
     <ClInclude Include="Integral.h" />
     <ClInclude Include="layer.hpp" />
-    <ClInclude Include="layer_constant.h" />
-    <ClInclude Include="layer_linear.h" />
     <ClInclude Include="linear_element.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="OdeSolver.h" />
