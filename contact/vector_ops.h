@@ -14,10 +14,26 @@ std::vector<T> operator+(const std::vector<T>& left,
 	{
 		throw std::invalid_argument("");
 	}
-	std::vector<T> result(left.size(), 0);
+	std::vector<T> result(left.size(), T());
 	for (size_t i = 0; i < result.size(); i++)
 	{
 		result[i] = left[i] + right[i];
+	}
+	return result;
+}
+
+template<class T>
+std::vector<std::vector<T>> operator%(const std::vector<T>& left,
+	const std::vector<T>& right)
+{
+	std::vector<std::vector<T>> result(left.size(), 
+		std::vector<T>(right.size()));
+	for (size_t i = 0; i < result.size(); i++)
+	{
+		for (size_t ii = 0; ii < right.size(); ii++)
+		{
+			result[i][ii] = left[i] * right[ii];
+		}
 	}
 	return result;
 }

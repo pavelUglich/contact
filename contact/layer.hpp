@@ -100,7 +100,12 @@ protected:
 	double get_tolerance() const;
 public:
 	vector<complex<double>> row(double node, complex<double> root) const;
-	vector<complex<double>> row(double node, size_t size, double y = 1.0) const; // временно!
+	vector<vector<complex<double>>> row(const vector<double>& node, complex<double> root) const;
+	vector<complex<double>> row(double node, size_t size, double y = 1.0) const;
+	vector<vector<complex<double>>> row(double node, size_t size, 
+		const vector<double>& y) const;
+	vector<vector<vector<complex<double>>>> row(const vector<double>& node, 
+		size_t size, const vector<double>& y) const;
 
 	/// <summary>
 	/// найти корни (метод открытый, чтобы осталась возможность построения дисперсионных кривых)
@@ -155,7 +160,13 @@ public:
 	std::complex<double> displacement(double x_1, double x_2, 
 		const std::vector<std::complex<double>>& solution) const;
 
+	std::vector<std::complex<double>> displacement(double x_1, 
+		const std::vector<double>& x_2,	
+		const std::vector<std::complex<double>>& solution) const;
 
+	std::vector<std::vector<std::complex<double>>> displacement(const std::vector<double>& x_1,
+		const std::vector<double>& x_2,	
+		const std::vector<std::complex<double>>& solution) const;
 	void process_points_vector(std::vector<double>& points) const;
 	void save_to_file(const std::string& filename) const;
 	void load_from_file(const std::string& filename);

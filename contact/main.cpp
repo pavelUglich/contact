@@ -6,24 +6,6 @@
 #include "linear_element.h"
 
 const double pi = acos(-1.0);
-enum class element_type { constant, linear };
-
-/*
-layer* make_layer(element_type et, const function<double(double)>& mu,
-	const function<double(double)>& rho, double kappa,
-	size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5)
-{
-	switch (et)
-	{
-	case element_type::constant:
-		return new layer_constant(mu, rho, kappa, roots_number, tolerance);
-	case element_type::linear:
-		return new layer_linear(mu, rho, kappa, roots_number, tolerance);
-	default:
-		break;
-	}
-	throw std::exception();
-}*/
 
 complex<double> transformant(complex<double> alpha, double _kappa)
 {
@@ -124,7 +106,7 @@ int main() {
 	const auto mass = 1.0;// масса штампа
 	const auto kappa = 2.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
-	const double y = .5;
+	const double y = 1.0;
 	size_t size = 20;
 	//const std::vector<std::complex<double>> sol(size, { 1.0, 0 });
 	//const std::vector<std::complex<double>> sol1(size + 1, { 1.0, 0 });
@@ -143,7 +125,7 @@ int main() {
 	vector<complex<double>> sol, sol1;
 
 	{
-		layer l = { mu, rho, "roots.txt", elements };//(mu, rho, file, elements);//{ mu, rho, "roots.txt"};
+		layer l = { mu, rho, "roots.txt", elements };
 		const auto mmm = l.matrix();
 		auto matrix = SquareMatrix<complex<double>>(size, mmm);
 		sol = matrix.linSolve(vector<complex<double>>(size, { 1,0 }));
@@ -155,18 +137,22 @@ int main() {
 			const double x = -a + (i + 0.5) * h;
 			wavefield[i] = l.displacement(x, y, sol);
 		}
-	}//*/
+	}
+	std::vector<double> nodes(size + 1);
+	for (size_t i = 0; i < nodes.size(); i++)
+	{
+		nodes[i] = -a + i * h;
+	}
 	left = -a;
 	for (size_t i = 0; i < size; i++)
 	{
 		double right = left + h;
-		elements[i] = new linear_element(left, right);
+		elements[i] = new linear_element(nodes[i], nodes[i + 1]);
 		left = right;
 	}
 
 	{
 		layer l = { mu, rho, "roots.txt", elements };
-		//const auto mmm = l.matrix(a, size);
 		const auto mmm = l.matrix();
 		auto matrix = SquareMatrix<complex<double>>(size + 1, mmm);
 		sol1 = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
@@ -174,14 +160,15 @@ int main() {
 			+ 0.5 * (sol1.front() + sol1.back()));
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
-		cout << l.displacement(-1.0, 0.5, sol1) << endl;
+		cout << l.displacement(1.0, 0.25, sol1) << endl;
 		cout << l.displacement(1.0, 0.5, sol1) << endl;
-		//const auto row1 = l.row(-1.0, { 1.33177771432077318713993463462,0.0 });
+		cout << l.displacement(1.0, 1.0, sol1) << endl;
+		const auto d = l.displacement(1.0, { 0.25, 0.5, 1.0 }, sol1);
+		const auto dd = l.displacement({ -1.0,0.0,1.0 }, { 0.25, 0.5, 1.0 }, sol1);
 		const auto row2 = l.row(0.0, { 1.33177771432077318713993463462,0.0 });
 		for (size_t i = 0; i <= size; i++)
 		{
-			const double x = -a + i * h;
-			wavefield1[i] = l.displacement(x, y, sol1);
+			wavefield1[i] = l.displacement(nodes[i], y, sol1);
 		}//*/
 	}//*/
 	//plotTheWaveField(h, { {"red", sol}, {"blue", sol1} }, "wf.txt", -a + h / 2);

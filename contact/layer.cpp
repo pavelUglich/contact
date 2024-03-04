@@ -128,6 +128,53 @@ vector<complex<double>> layer::row(double node, size_t size, double y) const
 	return result;
 }
 
+vector<vector<complex<double>>> layer::row(double node, size_t size, 
+	const vector<double>& y) const
+{
+	auto points = y;
+	process_points_vector(points);
+	vector<vector<complex<double>>> result(points.size(), 
+		vector<complex<double>>(size));
+	for (size_t i = 0; i < _roots.size(); i++)
+	{
+		const auto solution = smaller_system(_roots[i]).solve(points, { 0,1 });
+		vector<complex<double>> multiplier(solution.size());
+		for (size_t ii = 0; ii < solution.size(); ii++)
+		{
+			multiplier[ii] = I * solution[ii].front() / _residues[i];
+		}
+		const auto r = row(node, _roots[i]);
+		const auto term = multiplier % r;
+		result = result + term;
+	}
+	return result;
+}
+
+vector<vector<vector<complex<double>>>> layer::row(const vector<double>& node, 
+	size_t size, const vector<double>& y) const
+{
+	auto points = y;
+	process_points_vector(points);
+	vector<vector<vector<complex<double>>>> result(node.size(),
+		vector<vector<complex<double>>>(points.size(), vector<complex<double>>(size)));
+	for (size_t i = 0; i < _roots.size(); i++)
+	{
+		const auto solution = smaller_system(_roots[i]).solve(points, { 0,1 });
+		vector<complex<double>> multiplier(solution.size());
+		for (size_t ii = 0; ii < solution.size(); ii++)
+		{
+			multiplier[ii] = I * solution[ii].front() / _residues[i];
+		}
+		const auto r = row(node, _roots[i]);
+		for (size_t ii = 0; ii < node.size(); ii++)
+		{
+			const auto term = multiplier % r[ii];
+			result[ii] = result[ii] + term;
+		}
+	}
+	return result;
+}
+
 vector<complex<double>> layer::row(double node,
 	complex<double> root) const
 {
@@ -143,6 +190,16 @@ vector<complex<double>> layer::row(double node,
 	std::vector<complex<double>> v(result.size());
 	std::transform(result.begin(), result.end(), v.begin(), [](auto x) {return x.second; });
 	return v;
+}
+
+vector<vector<complex<double>>> layer::row(const vector<double>& node, complex<double> root) const
+{
+	vector<vector<complex<double>>> result(node.size());
+	for (size_t i = 0; i < result.size(); i++)
+	{
+		result[i] = row(node[i], root);
+	}
+	return result;
 }
 
 vector<complex<double>> layer::get_roots() const
@@ -185,6 +242,27 @@ std::complex<double> layer::displacement(double x_1, double x_2,
 {
 	const auto r = this->row(x_1, solution.size(), x_2);
 	return r * solution;
+}
+
+std::vector<std::complex<double>> layer::displacement(double x_1, 
+	const std::vector<double>& x_2, 
+	const std::vector<std::complex<double>>& solution) const
+{
+	const auto r = this->row(x_1, solution.size(), x_2);
+	return r * solution;
+}
+
+std::vector<std::vector<std::complex<double>>> layer::displacement(
+	const std::vector<double>& x_1, const std::vector<double>& x_2, 
+	const std::vector<std::complex<double>>& solution) const
+{
+	const auto r = this->row(x_1, solution.size(), x_2);
+	std::vector<std::vector<std::complex<double>>> result(x_1.size());
+	for (size_t i = 0; i < result.size(); i++)
+	{
+		result[i] = r[i] * solution;
+	}
+	return result;
 }
 
 void layer::process_points_vector(std::vector<double>& points) const
