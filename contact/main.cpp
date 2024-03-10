@@ -100,6 +100,22 @@ void plotTheDispersionalCurves(
 }
 
 
+void surface_plot(const std::vector<double>& x_1, const std::vector<double>& x_2, 
+	const std::vector<std::complex<double>>& solution, const layer& l, 
+	const std::string& file_name) 
+{
+	const auto matrix = l.displacement(x_1, x_2, solution);
+	std::ofstream ofs(file_name);
+	for (size_t i = 0; i < x_2.size(); i++)
+	{
+		for (size_t ii = 0; ii < x_1.size(); ii++)
+		{
+			ofs <<"(" << x_1[ii] << ", " << x_2[i] << ", " << abs(matrix[i][ii]) << ") ";
+		}
+	}
+	ofs.close();
+}
+
 int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
@@ -108,8 +124,6 @@ int main() {
 	const auto tt = 1.0; // интенсивность нагрузки	
 	const double y = 1.0;
 	size_t size = 20;
-	//const std::vector<std::complex<double>> sol(size, { 1.0, 0 });
-	//const std::vector<std::complex<double>> sol1(size + 1, { 1.0, 0 });
 	std::vector<std::complex<double>> wavefield(size);
 	std::vector<std::complex<double>> wavefield1(size + 1);
 	const double a = 1.0;
@@ -123,7 +137,6 @@ int main() {
 		left = right;
 	}
 	vector<complex<double>> sol, sol1;
-
 	{
 		layer l = { mu, rho, "roots.txt", elements };
 		const auto mmm = l.matrix();
@@ -160,16 +173,8 @@ int main() {
 			+ 0.5 * (sol1.front() + sol1.back()));
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
-		cout << l.displacement(1.0, 0.25, sol1) << endl;
-		cout << l.displacement(1.0, 0.5, sol1) << endl;
-		cout << l.displacement(1.0, 1.0, sol1) << endl;
-		const auto d = l.displacement(1.0, { 0.25, 0.5, 1.0 }, sol1);
 		const auto dd = l.displacement({ -1.0,0.0,1.0 }, { 0.25, 0.5, 1.0 }, sol1);
-		const auto row2 = l.row(0.0, { 1.33177771432077318713993463462,0.0 });
-		for (size_t i = 0; i <= size; i++)
-		{
-			wavefield1[i] = l.displacement(nodes[i], y, sol1);
-		}//*/
+		surface_plot({ -1.0,0.0,1.0 }, { 0.25, 0.5, 1.0 }, sol1, l, "1.dat");
 	}//*/
 	//plotTheWaveField(h, { {"red", sol}, {"blue", sol1} }, "wf.txt", -a + h / 2);
 	plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
