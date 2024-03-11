@@ -110,7 +110,7 @@ void surface_plot(const std::vector<double>& x_1, const std::vector<double>& x_2
 	{
 		for (size_t ii = 0; ii < x_1.size(); ii++)
 		{
-			ofs <<"(" << x_1[ii] << ", " << x_2[i] << ", " << abs(matrix[i][ii]) << ") ";
+			ofs <<"" << x_2[i] << ", " << x_1[ii] << ", " << abs(matrix[ii][i]) << ",\n";
 		}
 	}
 	ofs.close();
@@ -130,7 +130,7 @@ int main() {
 	const auto h = 2 * a / (double)size;
 	std::vector<boundary_element*> elements(size);
 	double left = -a;
-	for (size_t i = 0; i < size; i++)
+	/*for (size_t i = 0; i < size; i++)
 	{
 		double right = left + h;
 		elements[i] = new constant_element(left, right);
@@ -150,7 +150,8 @@ int main() {
 			const double x = -a + (i + 0.5) * h;
 			wavefield[i] = l.displacement(x, y, sol);
 		}
-	}
+	}*/
+	vector<complex<double>> sol1;
 	std::vector<double> nodes(size + 1);
 	for (size_t i = 0; i < nodes.size(); i++)
 	{
@@ -173,8 +174,8 @@ int main() {
 			+ 0.5 * (sol1.front() + sol1.back()));
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
-		const auto dd = l.displacement({ -1.0,0.0,1.0 }, { 0.25, 0.5, 1.0 }, sol1);
-		surface_plot({ -1.0,0.0,1.0 }, { 0.25, 0.5, 1.0 }, sol1, l, "1.dat");
+		const auto dd = l.displacement(nodes, { 0.0, 0.25, 0.5, 1.0 }, sol1);
+		surface_plot(nodes, { 0.0, 0.25, 0.5, 1.0 }, sol1, l, "1.dat");
 	}//*/
 	//plotTheWaveField(h, { {"red", sol}, {"blue", sol1} }, "wf.txt", -a + h / 2);
 	plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
