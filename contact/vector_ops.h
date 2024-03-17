@@ -65,6 +65,17 @@ std::vector<T> operator*(T number,
 }
 
 template<class T>
+std::vector<T> operator/(const std::vector<T>& vector, const T& number)
+{
+	std::vector<T> result(vector);
+	std::transform(result.begin(), result.end(),
+		result.begin(), [number](auto x) {return x / number; });
+	return result;
+}
+
+
+
+template<class T>
 T operator*(const std::vector<T>& left,
 	const std::vector<T>& right)
 {

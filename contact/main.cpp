@@ -175,6 +175,7 @@ int main() {
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
 		const auto dd = l.displacement(nodes, { 0.0, 0.25, 0.5, 1.0 }, sol1);
+		const auto up = l.umoff_pointing(0.0, 1.0, sol1);
 		surface_plot(nodes, { 0.0, 0.25, 0.5, 1.0 }, sol1, l, "1.dat");
 	}//*/
 	//plotTheWaveField(h, { {"red", sol}, {"blue", sol1} }, "wf.txt", -a + h / 2);

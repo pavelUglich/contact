@@ -148,7 +148,11 @@ public:
 	complex<double> right_part(double xi_1, double xi_2) const;
 
 	vector<vector<complex<double>>> matrix() const;
-		
+
+	std::vector<std::complex<double>> umoff_pointing(double x_1, double x_2,
+		const std::vector<std::complex<double>>& solution) const;
+
+
 	/// <summary>
 	/// перемещение 
 	/// </summary>

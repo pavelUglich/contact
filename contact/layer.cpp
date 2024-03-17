@@ -8,7 +8,7 @@
 
 
 vector<complex<double>> layer::function_and_derivative(complex<double> alpha) const {
-	const auto sol1 = bigger_system(alpha).solve(0, 1, { 0,1,0,0 });//!!!
+	const auto sol1 = bigger_system(alpha).solve(0, 1, { 0,1,0,0 });
 	return  { sol1[1], sol1[3] };
 }
 
@@ -150,12 +150,12 @@ vector<vector<complex<double>>> layer::row(double node, size_t size,
 	return result;
 }
 
-vector<vector<vector<complex<double>>>> layer::row(const vector<double>& node, 
+vector<vector<vector<complex<double>>>> layer::row(const vector<double>& nodes, 
 	size_t size, const vector<double>& y) const
 {
 	auto points = y;
 	process_points_vector(points);
-	vector<vector<vector<complex<double>>>> result(node.size(),
+	vector<vector<vector<complex<double>>>> result(nodes.size(),
 		vector<vector<complex<double>>>(points.size(), vector<complex<double>>(size)));
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
@@ -165,8 +165,8 @@ vector<vector<vector<complex<double>>>> layer::row(const vector<double>& node,
 		{
 			multiplier[ii] = I * solution[ii].front() / _residues[i];
 		}
-		const auto r = row(node, _roots[i]);
-		for (size_t ii = 0; ii < node.size(); ii++)
+		const auto r = row(nodes, _roots[i]);
+		for (size_t ii = 0; ii < nodes.size(); ii++)
 		{
 			const auto term = multiplier % r[ii];
 			result[ii] = result[ii] + term;
@@ -192,7 +192,8 @@ vector<complex<double>> layer::row(double node,
 	return v;
 }
 
-vector<vector<complex<double>>> layer::row(const vector<double>& node, complex<double> root) const
+vector<vector<complex<double>>> layer::row(const vector<double>& node, 
+	complex<double> root) const
 {
 	vector<vector<complex<double>>> result(node.size());
 	for (size_t i = 0; i < result.size(); i++)
@@ -235,6 +236,28 @@ vector<vector<complex<double>>> layer::matrix() const
 		result[i] = row(nodes[i], matrix_size);
 	}
 	return result;
+}
+
+std::vector<std::complex<double>> layer::umoff_pointing(double x_1, double x_2,
+	const std::vector<std::complex<double>>& solution) const
+{
+	const auto size = solution.size();
+	vector<complex<double>> u(size);
+	vector<complex<double>> sigma_13(size);
+	vector<complex<double>> sigma_23(size);
+	for (size_t i = 0; i < _roots.size(); i++)
+	{
+		const auto multiplier = smaller_system(_roots[i]).solve(0, x_2, { 0,1 }) 
+			/ _residues[i];
+		const auto r = row(x_1, _roots[i]);
+		u = u + I * multiplier[0] * r;
+		sigma_13 = sigma_13 - _roots[i] * multiplier[0] * r;
+		sigma_23 = sigma_23 + I * multiplier[1] * r;
+	}
+	const auto U = u * solution;
+	const auto Sigma_13 = sigma_13 * solution; // !!!!
+	const auto Sigma_23 = sigma_23 * solution;
+	return { I * U * Sigma_13, I * U * Sigma_23 };
 }
 
 std::complex<double> layer::displacement(double x_1, double x_2,
@@ -327,7 +350,7 @@ layer::layer(const function<double(double)>& mu,
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, double kappa,
 	const std::vector<boundary_element*>& elements, size_t roots_number,
-	double tolerance) :layer(mu, rho, kappa, roots_number, tolerance)	
+	double tolerance) :layer(mu, rho, kappa, roots_number, tolerance) 	
 {
 	this->_elements = elements;
 }
@@ -340,7 +363,8 @@ layer::layer(const function<double(double)>& mu,
 	this->_elements = elements;
 }
 
-std::vector<double> get_nodal_points(const std::vector<boundary_element*>& elements)
+std::vector<double> get_nodal_points(
+	const std::vector<boundary_element*>& elements)
 {
 	std::set<double> result;
 	for (const auto& element : elements)
