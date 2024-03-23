@@ -99,7 +99,7 @@ protected:
 	/// <returns>точность</returns>
 	double get_tolerance() const;
 public:
-	vector<complex<double>> row(double node, complex<double> root) const;
+	vector<complex<double>> row(double node, complex<double> root, bool odd = false) const;
 	vector<vector<complex<double>>> row(const vector<double>& node, complex<double> root) const;
 	vector<complex<double>> row(double node, size_t size, double y = 1.0) const;
 	vector<vector<complex<double>>> row(double node, size_t size, 
@@ -149,7 +149,7 @@ public:
 
 	vector<vector<complex<double>>> matrix() const;
 
-	std::vector<std::complex<double>> umoff_pointing(double x_1, double x_2,
+	std::vector<double> umoff_pointing(double x_1, double x_2, 
 		const std::vector<std::complex<double>>& solution) const;
 
 

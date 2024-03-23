@@ -128,12 +128,12 @@ vector<complex<double>> layer::row(double node, size_t size, double y) const
 	return result;
 }
 
-vector<vector<complex<double>>> layer::row(double node, size_t size, 
+vector<vector<complex<double>>> layer::row(double node, size_t size,
 	const vector<double>& y) const
 {
 	auto points = y;
 	process_points_vector(points);
-	vector<vector<complex<double>>> result(points.size(), 
+	vector<vector<complex<double>>> result(points.size(),
 		vector<complex<double>>(size));
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
@@ -150,7 +150,7 @@ vector<vector<complex<double>>> layer::row(double node, size_t size,
 	return result;
 }
 
-vector<vector<vector<complex<double>>>> layer::row(const vector<double>& nodes, 
+vector<vector<vector<complex<double>>>> layer::row(const vector<double>& nodes,
 	size_t size, const vector<double>& y) const
 {
 	auto points = y;
@@ -176,12 +176,12 @@ vector<vector<vector<complex<double>>>> layer::row(const vector<double>& nodes,
 }
 
 vector<complex<double>> layer::row(double node,
-	complex<double> root) const
+	complex<double> root, bool odd) const
 {
 	std::map<double, complex<double>> result;
 	for (const auto& element : this->_elements)
 	{
-		const auto val = element->evaluate(root, node);
+		const auto val = element->evaluate(root, node, odd);
 		for (const auto& x : val)
 		{
 			result[x.first] += x.second;
@@ -192,7 +192,7 @@ vector<complex<double>> layer::row(double node,
 	return v;
 }
 
-vector<vector<complex<double>>> layer::row(const vector<double>& node, 
+vector<vector<complex<double>>> layer::row(const vector<double>& node,
 	complex<double> root) const
 {
 	vector<vector<complex<double>>> result(node.size());
@@ -238,7 +238,7 @@ vector<vector<complex<double>>> layer::matrix() const
 	return result;
 }
 
-std::vector<std::complex<double>> layer::umoff_pointing(double x_1, double x_2,
+std::vector<double> layer::umoff_pointing(double x_1, double x_2,
 	const std::vector<std::complex<double>>& solution) const
 {
 	const auto size = solution.size();
@@ -247,17 +247,18 @@ std::vector<std::complex<double>> layer::umoff_pointing(double x_1, double x_2,
 	vector<complex<double>> sigma_23(size);
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
-		const auto multiplier = smaller_system(_roots[i]).solve(0, x_2, { 0,1 }) 
+		const auto multiplier = smaller_system(_roots[i]).solve(0, x_2, { 0,1 })
 			/ _residues[i];
 		const auto r = row(x_1, _roots[i]);
+		const auto r_odd = row(x_1, _roots[i], true);
 		u = u + I * multiplier[0] * r;
-		sigma_13 = sigma_13 - _roots[i] * multiplier[0] * r;
+		sigma_13 = sigma_13 - _roots[i] * multiplier[0] * r_odd;
 		sigma_23 = sigma_23 + I * multiplier[1] * r;
 	}
 	const auto U = u * solution;
 	const auto Sigma_13 = sigma_13 * solution; // !!!!
 	const auto Sigma_23 = sigma_23 * solution;
-	return { I * U * Sigma_13, I * U * Sigma_23 };
+	return { (I * U * Sigma_13).real(), (I * U * Sigma_23).real() };
 }
 
 std::complex<double> layer::displacement(double x_1, double x_2,
@@ -267,8 +268,8 @@ std::complex<double> layer::displacement(double x_1, double x_2,
 	return r * solution;
 }
 
-std::vector<std::complex<double>> layer::displacement(double x_1, 
-	const std::vector<double>& x_2, 
+std::vector<std::complex<double>> layer::displacement(double x_1,
+	const std::vector<double>& x_2,
 	const std::vector<std::complex<double>>& solution) const
 {
 	const auto r = this->row(x_1, solution.size(), x_2);
@@ -276,7 +277,7 @@ std::vector<std::complex<double>> layer::displacement(double x_1,
 }
 
 std::vector<std::vector<std::complex<double>>> layer::displacement(
-	const std::vector<double>& x_1, const std::vector<double>& x_2, 
+	const std::vector<double>& x_1, const std::vector<double>& x_2,
 	const std::vector<std::complex<double>>& solution) const
 {
 	const auto r = this->row(x_1, solution.size(), x_2);
@@ -350,7 +351,7 @@ layer::layer(const function<double(double)>& mu,
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, double kappa,
 	const std::vector<boundary_element*>& elements, size_t roots_number,
-	double tolerance) :layer(mu, rho, kappa, roots_number, tolerance) 	
+	double tolerance) :layer(mu, rho, kappa, roots_number, tolerance)
 {
 	this->_elements = elements;
 }

@@ -116,11 +116,14 @@ void surface_plot(const std::vector<double>& x_1, const std::vector<double>& x_2
 	ofs.close();
 }
 
+
+
+
 int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
 	const auto mass = 1.0;// масса штампа
-	const auto kappa = 2.0; // волновое число
+	const auto kappa = 5.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 	const double y = 1.0;
 	size_t size = 20;
@@ -130,27 +133,6 @@ int main() {
 	const auto h = 2 * a / (double)size;
 	std::vector<boundary_element*> elements(size);
 	double left = -a;
-	/*for (size_t i = 0; i < size; i++)
-	{
-		double right = left + h;
-		elements[i] = new constant_element(left, right);
-		left = right;
-	}
-	vector<complex<double>> sol, sol1;
-	{
-		layer l = { mu, rho, "roots.txt", elements };
-		const auto mmm = l.matrix();
-		auto matrix = SquareMatrix<complex<double>>(size, mmm);
-		sol = matrix.linSolve(vector<complex<double>>(size, { 1,0 }));
-		const complex<double> integral_ = h * std::accumulate(sol.begin(), sol.end(), complex<double>());
-		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
-		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
-		for (size_t i = 0; i < size; i++)
-		{
-			const double x = -a + (i + 0.5) * h;
-			wavefield[i] = l.displacement(x, y, sol);
-		}
-	}*/
 	vector<complex<double>> sol1;
 	std::vector<double> nodes(size + 1);
 	for (size_t i = 0; i < nodes.size(); i++)
@@ -166,7 +148,7 @@ int main() {
 	}
 
 	{
-		layer l = { mu, rho, "roots.txt", elements };
+		layer l(mu, rho, kappa, elements); //= { mu, rho, "roots.txt", elements };
 		const auto mmm = l.matrix();
 		auto matrix = SquareMatrix<complex<double>>(size + 1, mmm);
 		sol1 = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
@@ -175,10 +157,21 @@ int main() {
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
 		const auto dd = l.displacement(nodes, { 0.0, 0.25, 0.5, 1.0 }, sol1);
-		const auto up = l.umoff_pointing(0.0, 1.0, sol1);
+//		const auto up = l.umoff_pointing(0.0, .95, sol1);
+//		const auto up1 = l.umoff_pointing(-0.1, .95, sol1);
+		double x = 0.1;
+		double y = 0.1;
+		const double hh = 0.01;
+		for (size_t i = 0; i < 100; i++)
+		{
+			const auto up = l.umoff_pointing(x, y, sol1);
+			x += up[0] * hh;
+			y += up[1] * hh;
+			cout <<"("<< x << ", " << y << ") ";
+		}
+		cout << endl;
 		surface_plot(nodes, { 0.0, 0.25, 0.5, 1.0 }, sol1, l, "1.dat");
-	}//*/
-	//plotTheWaveField(h, { {"red", sol}, {"blue", sol1} }, "wf.txt", -a + h / 2);
+	}
 	plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
 	system("pause");
 }

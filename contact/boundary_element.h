@@ -25,11 +25,8 @@ public:
 	/// <param name="xi">горизонтальная координата</param>
 	/// <returns></returns>
 	virtual std::map<double, std::complex<double>> evaluate(std::complex<double> alpha,
-		double xi) const = 0;
-
+		double xi, bool odd = false) const = 0;
 	std::vector<double> get_nodal_points() const;
-
-
 	virtual ~boundary_element() = default;
 };
 
