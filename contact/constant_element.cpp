@@ -15,7 +15,7 @@ std::map<double, std::complex<double>> constant_element::evaluate(
 	}
 	if (xi >= _right)
 	{
-		const auto diff = exp(-I * alpha * _right) - exp(-I * alpha * _left) * sign;
+		const auto diff = exp(-I * alpha * _right) - exp(-I * alpha * _left);
 		const auto result = exp(I * alpha * xi) * diff * I / alpha * sign;
 		return { { node, result } };
 	}

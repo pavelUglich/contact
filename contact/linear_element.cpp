@@ -26,12 +26,12 @@ std::map<double, std::complex<double>> linear_element::evaluate(
 	}
 	const auto erx = exp(I * alpha * (xi - _left));
 	const auto exl = exp(I * alpha * (_right - xi));
-	const auto left_0 = mm * sign * (alpha * I * (xi - _right) - 1.0 + erx);
-	const auto left_1 = -mm * sign * (exl + I * alpha * (_left - _right) * exl - 1.0 +
+	const auto left_0 = mm * (alpha * I * (xi - _right) - 1.0 + erx);
+	const auto left_1 = -mm * (exl + I * alpha * (_left - _right) * exl - 1.0 +
 		I * alpha * (_right - xi));
 	const auto right_0 = -mm * (-1.0 + I * alpha * (xi - _left) + erx +
-		I * alpha * (_left - _right) * erx) * sign;
-	const auto right_1 = -mm * (-exl + 1.0 + I * alpha * (xi - _left)) * sign;
-	return { {nodes[0],left_0 + right_0}, {nodes[1],left_1 + right_1} };
+		I * alpha * (_left - _right) * erx);
+	const auto right_1 = -mm * (-exl + 1.0 + I * alpha * (xi - _left));
+	return { {nodes[0],(left_0 + right_0) * sign}, {nodes[1],left_1 + right_1} };
 }
 

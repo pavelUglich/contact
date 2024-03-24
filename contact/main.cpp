@@ -126,7 +126,7 @@ int main() {
 	const auto kappa = 5.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 	const double y = 1.0;
-	size_t size = 20;
+	size_t size = 40;
 	std::vector<std::complex<double>> wavefield(size);
 	std::vector<std::complex<double>> wavefield1(size + 1);
 	const double a = 1.0;
@@ -157,20 +157,13 @@ int main() {
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
 		const auto dd = l.displacement(nodes, { 0.0, 0.25, 0.5, 1.0 }, sol1);
-//		const auto up = l.umoff_pointing(0.0, .95, sol1);
-//		const auto up1 = l.umoff_pointing(-0.1, .95, sol1);
-		double x = 0.1;
-		double y = 0.1;
-		const double hh = 0.01;
-		for (size_t i = 0; i < 100; i++)
+		std::vector<std::complex<double>> up(50);
+		for (size_t i = 0; i < 50; i++)
 		{
-			const auto up = l.umoff_pointing(x, y, sol1);
-			x += up[0] * hh;
-			y += up[1] * hh;
-			cout <<"("<< x << ", " << y << ") ";
+			const auto uu = l.umoff_pointing(0.02 * i, 0.95, sol1);
+			up[i] = { uu[0], uu[1] };
 		}
-		cout << endl;
-		surface_plot(nodes, { 0.0, 0.25, 0.5, 1.0 }, sol1, l, "1.dat");
+		plotTheWaveField(0.02, { {"red", up} }, "uu.txt");
 	}
 	plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
 	system("pause");

@@ -258,6 +258,7 @@ std::vector<double> layer::umoff_pointing(double x_1, double x_2,
 	const auto U = u * solution;
 	const auto Sigma_13 = sigma_13 * solution; // !!!!
 	const auto Sigma_23 = sigma_23 * solution;
+//	return { (I * Sigma_13).real(), (I * U * Sigma_23).real() };
 	return { (I * U * Sigma_13).real(), (I * U * Sigma_23).real() };
 }
 
