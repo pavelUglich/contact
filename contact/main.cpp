@@ -100,9 +100,9 @@ void plotTheDispersionalCurves(
 }
 
 
-void surface_plot(const std::vector<double>& x_1, const std::vector<double>& x_2, 
-	const std::vector<std::complex<double>>& solution, const layer& l, 
-	const std::string& file_name) 
+void surface_plot(const std::vector<double>& x_1, const std::vector<double>& x_2,
+	const std::vector<std::complex<double>>& solution, const layer& l,
+	const std::string& file_name)
 {
 	const auto matrix = l.displacement(x_1, x_2, solution);
 	std::ofstream ofs(file_name);
@@ -110,7 +110,7 @@ void surface_plot(const std::vector<double>& x_1, const std::vector<double>& x_2
 	{
 		for (size_t ii = 0; ii < x_1.size(); ii++)
 		{
-			ofs <<"" << x_2[i] << ", " << x_1[ii] << ", " << abs(matrix[ii][i]) << ",\n";
+			ofs << "" << x_2[i] << ", " << x_1[ii] << ", " << abs(matrix[ii][i]) << ",\n";
 		}
 	}
 	ofs.close();
@@ -123,10 +123,10 @@ int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
 	const auto mass = 1.0;// масса штампа
-	const auto kappa = 5.0; // волновое число
+	const auto kappa = 2.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 	const double y = 1.0;
-	size_t size = 40;
+	size_t size = 40;// 0;
 	std::vector<std::complex<double>> wavefield(size);
 	std::vector<std::complex<double>> wavefield1(size + 1);
 	const double a = 1.0;
@@ -143,27 +143,45 @@ int main() {
 	for (size_t i = 0; i < size; i++)
 	{
 		double right = left + h;
-		elements[i] = new linear_element(nodes[i], nodes[i + 1]);
+		elements[i] = new constant_element(nodes[i], nodes[i + 1]);
 		left = right;
 	}
 
 	{
 		layer l(mu, rho, kappa, elements); //= { mu, rho, "roots.txt", elements };
 		const auto mmm = l.matrix();
-		auto matrix = SquareMatrix<complex<double>>(size + 1, mmm);
-		sol1 = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
+		auto matrix = SquareMatrix<complex<double>>(size/* + 1*/, mmm);
+		sol1 = matrix.linSolve(vector<complex<double>>(size/* + 1*/, { 1,0 }));
 		const complex<double> integral_ = h * (std::accumulate(sol1.begin() + 1, sol1.end() - 1, complex<double>())
 			+ 0.5 * (sol1.front() + sol1.back()));
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
 		const auto dd = l.displacement(nodes, { 0.0, 0.25, 0.5, 1.0 }, sol1);
-		std::vector<std::complex<double>> up(50);
-		for (size_t i = 0; i < 50; i++)
+		double x = 0.2;
+		double y = 0.99;
+		auto hh = 1.0;
+		/*std::vector<std::complex<double>> up(40);
+		for (size_t i = 0; i < 40; i++)
 		{
-			const auto uu = l.umoff_pointing(0.02 * i, 0.95, sol1);
-			up[i] = { uu[0], uu[1] };
-		}
-		plotTheWaveField(0.02, { {"red", up} }, "uu.txt");
+			const auto uu = l.smaller_system(l.get_roots()[0]).solve(0.0, i * hh, {0,1});//.umoff_pointing(0.1, i * hh, sol1);
+			up[i] = { uu[0].real(), uu[1].real()};
+		}*/
+		while (abs(y - 1) > 0.001 && abs(y) > 0.001)
+		{
+			auto uu = l.umoff_pointing(x, y, sol1);
+			auto new_y = y + uu[1] * hh;
+			while (new_y < 0 || new_y > 1)
+			{
+				hh /= 2;
+				new_y = y + uu[1] * hh;
+			}
+			x += uu[0] * hh;
+			y += uu[1] * hh;
+			cout << "(" << x << ", " << y << ") ";// << endl;
+			//hh *= 1.1;
+		}//*/
+		//cout << endl;
+		//plotTheWaveField(hh, { {"red", up} }, "uu.txt");
 	}
 	plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
 	system("pause");

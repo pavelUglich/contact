@@ -245,20 +245,19 @@ std::vector<double> layer::umoff_pointing(double x_1, double x_2,
 	vector<complex<double>> u(size);
 	vector<complex<double>> sigma_13(size);
 	vector<complex<double>> sigma_23(size);
-	for (size_t i = 0; i < _roots.size(); i++)
+	for (size_t i = 0; i < 1;/*_roots.size();*/ i++)
 	{
-		const auto multiplier = smaller_system(_roots[i]).solve(0, x_2, { 0,1 })
+		const auto multiplier = smaller_system(_roots[i]).solve(0, x_2, { {0.0, 0.0},{1.0, 0.0} })
 			/ _residues[i];
 		const auto r = row(x_1, _roots[i]);
 		const auto r_odd = row(x_1, _roots[i], true);
 		u = u + I * multiplier[0] * r;
-		sigma_13 = sigma_13 - _roots[i] * multiplier[0] * r_odd;
+		sigma_13 = sigma_13 + _roots[i] * multiplier[0] * r_odd;
 		sigma_23 = sigma_23 + I * multiplier[1] * r;
 	}
 	const auto U = u * solution;
 	const auto Sigma_13 = sigma_13 * solution; // !!!!
 	const auto Sigma_23 = sigma_23 * solution;
-//	return { (I * Sigma_13).real(), (I * U * Sigma_23).real() };
 	return { (I * U * Sigma_13).real(), (I * U * Sigma_23).real() };
 }
 

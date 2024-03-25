@@ -74,13 +74,6 @@ class layer {
 
 protected:
 	/// <summary>
-	/// система ОДУ в трансформантах (используем, если производная по \alpha не нужна)
-	/// </summary>
-	/// <param name="alpha">  параметр преобразования Фурье  </param>
-	/// <returns></returns>
-	OdeSolver<complex<double>> smaller_system(complex<double> alpha) const;
-
-	/// <summary>
 	/// система ОДУ в трансформантах (используем, если производная по \alpha нужна)
 	/// </summary>
 	/// <param name="alpha">  параметр преобразования Фурье  </param>
@@ -99,6 +92,13 @@ protected:
 	/// <returns>точность</returns>
 	double get_tolerance() const;
 public:
+	/// <summary>
+	/// система ОДУ в трансформантах (используем, если производная по \alpha не нужна)
+	/// </summary>
+	/// <param name="alpha">  параметр преобразования Фурье  </param>
+	/// <returns></returns>
+	OdeSolver<complex<double>> smaller_system(complex<double> alpha) const;
+
 	vector<complex<double>> row(double node, complex<double> root, bool odd = false) const;
 	vector<vector<complex<double>>> row(const vector<double>& node, complex<double> root) const;
 	vector<complex<double>> row(double node, size_t size, double y = 1.0) const;

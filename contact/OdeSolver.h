@@ -31,7 +31,7 @@ class OdeSolver
 {
 	std::vector<std::function<T(double, const std::vector<T>&)>>
 		_equations;
-	double _epsilon = 0.1e-6;
+	double _epsilon = 0.1e-5;
 	std::vector<std::vector<double>> _butcher_tableau = get_butcher_tableau(RUNGE_KUTTA_FELDBERG);
 	std::vector<std::vector<T>> evaluate_k(
 		const std::vector<T>& initial_conditions, double a, double h) const;
@@ -127,7 +127,7 @@ OdeSolver<T>::OdeSolver(
 }
 
 template<class T>
-std::vector<T> OdeSolver<T>::solve(double a, double b, 
+std::vector<T> OdeSolver<T>::solve(double a, double b,
 	const std::vector<T>& initial_conditions) const
 {
 	if (a > b)
@@ -136,7 +136,7 @@ std::vector<T> OdeSolver<T>::solve(double a, double b,
 	}
 	double h = b - a;
 	std::vector<T> initials(initial_conditions);
-	while (a < b)
+	while (a < b && abs(a - b) > 10 * DBL_EPSILON)
 	{
 		std::vector<T> u_;
 		double r = calculate_the_residual(a, initials, h, u_);
