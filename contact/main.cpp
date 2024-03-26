@@ -123,7 +123,7 @@ int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
 	const auto mass = 1.0;// масса штампа
-	const auto kappa = 2.0; // волновое число
+	const auto kappa = 5.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 	const double y = 1.0;
 	size_t size = 40;// 0;
@@ -148,7 +148,8 @@ int main() {
 	}
 
 	{
-		layer l(mu, rho, kappa, elements); //= { mu, rho, "roots.txt", elements };
+		layer l(mu, rho, "5.txt", elements); // = { mu, rho, "roots.txt", elements };
+		//l.save_to_file("5.txt");
 		const auto mmm = l.matrix();
 		auto matrix = SquareMatrix<complex<double>>(size/* + 1*/, mmm);
 		sol1 = matrix.linSolve(vector<complex<double>>(size/* + 1*/, { 1,0 }));
@@ -157,16 +158,11 @@ int main() {
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
 		const auto dd = l.displacement(nodes, { 0.0, 0.25, 0.5, 1.0 }, sol1);
-		double x = 0.2;
+		double x = 1.0;
 		double y = 0.99;
-		auto hh = 1.0;
-		/*std::vector<std::complex<double>> up(40);
-		for (size_t i = 0; i < 40; i++)
-		{
-			const auto uu = l.smaller_system(l.get_roots()[0]).solve(0.0, i * hh, {0,1});//.umoff_pointing(0.1, i * hh, sol1);
-			up[i] = { uu[0].real(), uu[1].real()};
-		}*/
-		while (abs(y - 1) > 0.001 && abs(y) > 0.001)
+		auto hh = 0.0025;
+		cout << "(" << x << ", " << y << ") ";// << endl;
+		while (abs(x) < 2.0)
 		{
 			auto uu = l.umoff_pointing(x, y, sol1);
 			auto new_y = y + uu[1] * hh;
@@ -178,11 +174,8 @@ int main() {
 			x += uu[0] * hh;
 			y += uu[1] * hh;
 			cout << "(" << x << ", " << y << ") ";// << endl;
-			//hh *= 1.1;
-		}//*/
-		//cout << endl;
-		//plotTheWaveField(hh, { {"red", up} }, "uu.txt");
+		}
 	}
-	plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
+	//plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
 	system("pause");
 }
