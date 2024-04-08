@@ -127,7 +127,7 @@ void umov_pointing(const std::vector<double>& x_1, double x_2,
 	{
 		auto x = xx;
 		auto y = x_2;
-		auto hh = 0.002;
+		auto hh = 0.05;
 		const size_t limit = 600;
 		size_t counter = 0;
 		ofs << "\\addplot[line width = 0.25mm, smooth, red] plot coordinates{\n";
@@ -163,7 +163,7 @@ int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
 	const auto mass = 1.0;// масса штампа
-	const auto kappa = 5.0; // волновое число
+	const auto kappa = 2.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 	const double y = 1.0;
 	size_t size = 40;// 0;
@@ -188,7 +188,7 @@ int main() {
 	}
 
 	{
-		layer l(mu, rho, "5.txt", elements); // = { mu, rho, "roots.txt", elements };
+		layer l(mu, rho, kappa, elements); //(mu, rho, "5.txt", elements); // = { mu, rho, "roots.txt", elements };
 		//l.save_to_file("5.txt");
 		const auto mmm = l.matrix();
 		auto matrix = SquareMatrix<complex<double>>(size + 1, mmm);
