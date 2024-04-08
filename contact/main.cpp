@@ -117,6 +117,46 @@ void surface_plot(const std::vector<double>& x_1, const std::vector<double>& x_2
 }
 
 
+void umov_pointing(const std::vector<double>& x_1, double x_2,
+	const std::vector<std::complex<double>>& solution, const layer& l,
+	const std::string& file_name) {
+	std::ofstream ofs(file_name);
+	ofs << "\\begin{tikzpicture} [scale = 2.1] \\tiny\n";
+	ofs << "\\begin{axis}[grid]\\n";
+	for (auto xx : x_1)
+	{
+		auto x = xx;
+		auto y = x_2;
+		auto hh = 0.002;
+		const size_t limit = 600;
+		size_t counter = 0;
+		ofs << "\\addplot[line width = 0.25mm, smooth, red] plot coordinates{\n";
+		ofs << "(" << x << ", " << y << ") ";
+		while (abs(x) < 2.0)
+		{
+
+			auto uu = l.umoff_pointing(x, y, solution);
+			auto new_y = y + uu[1] * hh;
+			while (new_y < 0 || new_y > 1)
+			{
+				hh /= 2;
+				new_y = y + uu[1] * hh;
+			}
+			x += uu[0] * hh;
+			y += uu[1] * hh;
+			if (counter++ > limit)
+			{
+				break;
+			}
+			ofs << "(" << x << ", " << y << ") ";// << endl;
+		}
+		ofs << "};\n";
+	}
+
+	ofs << "\\end{axis}\n";
+	ofs << "\\end{tikzpicture}";
+	ofs.close();
+}
 
 
 int main() {
@@ -143,7 +183,7 @@ int main() {
 	for (size_t i = 0; i < size; i++)
 	{
 		double right = left + h;
-		elements[i] = new constant_element(nodes[i], nodes[i + 1]);
+		elements[i] = new linear_element(nodes[i], nodes[i + 1]);
 		left = right;
 	}
 
@@ -151,30 +191,18 @@ int main() {
 		layer l(mu, rho, "5.txt", elements); // = { mu, rho, "roots.txt", elements };
 		//l.save_to_file("5.txt");
 		const auto mmm = l.matrix();
-		auto matrix = SquareMatrix<complex<double>>(size/* + 1*/, mmm);
-		sol1 = matrix.linSolve(vector<complex<double>>(size/* + 1*/, { 1,0 }));
+		auto matrix = SquareMatrix<complex<double>>(size + 1, mmm);
+		sol1 = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
 		const complex<double> integral_ = h * (std::accumulate(sol1.begin() + 1, sol1.end() - 1, complex<double>())
 			+ 0.5 * (sol1.front() + sol1.back()));
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
-		const auto dd = l.displacement(nodes, { 0.0, 0.25, 0.5, 1.0 }, sol1);
-		double x = 1.0;
-		double y = 0.99;
-		auto hh = 0.0025;
-		cout << "(" << x << ", " << y << ") ";// << endl;
-		while (abs(x) < 2.0)
+		std::vector<double> points(20);
+		for (size_t i = 1; i <= 20; i++)
 		{
-			auto uu = l.umoff_pointing(x, y, sol1);
-			auto new_y = y + uu[1] * hh;
-			while (new_y < 0 || new_y > 1)
-			{
-				hh /= 2;
-				new_y = y + uu[1] * hh;
-			}
-			x += uu[0] * hh;
-			y += uu[1] * hh;
-			cout << "(" << x << ", " << y << ") ";// << endl;
+			points[i - 1] = i * 0.05;
 		}
+		umov_pointing(points, 0.99, sol1, l, "up.txt");
 	}
 	//plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
 	system("pause");
