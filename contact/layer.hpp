@@ -19,6 +19,8 @@ using namespace std;
 const size_t MAX_ROOTS_NUMBER = 50;
 const complex<double> I = { 0, 1 };
 
+enum bottom_c {CLAMPED, FREE};
+
 std::vector<double> get_nodal_points(const std::vector<boundary_element*>& elements);
 
 /// <summary>
@@ -42,6 +44,8 @@ class layer {
 
 	// набор элементов
 	std::vector<boundary_element*> _elements;
+
+	bottom_c _bc;
 
 	/// <summary>
 	/// вспомогательная функция для отыскания значения трансформанты напряжения
@@ -123,21 +127,23 @@ public:
 	/// <param name="tolerance"> точность расчётов </param>
 	layer(const function<double(double)>& mu,
 		const function<double(double)>& rho, double kappa,
-		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5);
+		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5, 
+		bottom_c bc = FREE);
 
 	layer(const function<double(double)>& mu,
 		const function<double(double)>& rho, const std::string& filename, 
-		double tolerance = 0.1e-5);
+		double tolerance = 0.1e-5, bottom_c bc = FREE);
 
 	layer(const function<double(double)>& mu,
 		const function<double(double)>& rho, double kappa,
 		const std::vector<boundary_element* >& elements,
-		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5);
+		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5, 
+		bottom_c bc = FREE);
 
 	layer(const function<double(double)>& mu,
 		const function<double(double)>& rho, const std::string& filename,
 		const std::vector<boundary_element* >& elements,
-		double tolerance = 0.1e-5);
+		double tolerance = 0.1e-5, bottom_c bc = FREE);
 
 	/// <summary>
 	/// правая часть интегрального уравнения
@@ -168,14 +174,15 @@ public:
 		const std::vector<double>& x_2,	
 		const std::vector<std::complex<double>>& solution) const;
 
-	std::vector<std::vector<std::complex<double>>> displacement(const std::vector<double>& x_1,
-		const std::vector<double>& x_2,	
+	std::vector<std::vector<std::complex<double>>> displacement(
+		const std::vector<double>& x_1, const std::vector<double>& x_2,	
 		const std::vector<std::complex<double>>& solution) const;
+
 	void process_points_vector(std::vector<double>& points) const;
 	void save_to_file(const std::string& filename) const;
 	void load_from_file(const std::string& filename);
 
-	virtual ~layer();;
+	virtual ~layer();
 };
 #endif /* layer_hpp */
 

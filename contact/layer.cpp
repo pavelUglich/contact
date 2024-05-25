@@ -7,7 +7,9 @@
 #include <map>
 
 
-vector<complex<double>> layer::function_and_derivative(complex<double> alpha) const {
+vector<complex<double>>
+layer::function_and_derivative(complex<double> alpha) const
+{
 	const auto sol1 = bigger_system(alpha).solve(0, 1, { 0,1,0,0 });
 	return  { sol1[1], sol1[3] };
 }
@@ -71,10 +73,14 @@ OdeSolver<complex<double>> layer::smaller_system(complex<double> alpha) const
 	return
 	{
 		{
-			[this](double x, const vector<complex<double>>& y) {return y[1] / _mu(x); },
+			[this](double x, const vector<complex<double>>& y)
+			{
+				return y[1] / _mu(x);
+			},
 			[this, alpha](double x, const vector<complex<double>>& y)
 			{
-				return (alpha * alpha * _mu(x) - _rho(x) * _kappa * _kappa) * y[0];
+				return (alpha * alpha * _mu(x) - _rho(x) * _kappa * _kappa)
+					* y[0];
 			}
 		},
 		_tolerance,
@@ -182,13 +188,14 @@ vector<complex<double>> layer::row(double node,
 	for (const auto& element : this->_elements)
 	{
 		const auto val = element->evaluate(root, node, odd);
-		for (const auto& x : val)
+		for (const auto& [key, value] : val)
 		{
-			result[x.first] += x.second;
+			result[key] += value;
 		}
 	}
 	std::vector<complex<double>> v(result.size());
-	std::transform(result.begin(), result.end(), v.begin(), [](auto x) {return x.second; });
+	std::ranges::transform(result.begin(), result.end(), v.begin(), 
+		[](auto x) {return x.second; });
 	return v;
 }
 
@@ -210,7 +217,8 @@ vector<complex<double>> layer::get_roots() const
 
 
 
-complex<double> layer::right_part(double xi_1, double xi_2) const {
+complex<double> layer::right_part(double xi_1, double xi_2) const 
+{
 	complex<double> result = 0;
 	complex<double> term;
 	complex<double> alpha;
@@ -247,8 +255,8 @@ std::vector<double> layer::umoff_pointing(double x_1, double x_2,
 	vector<complex<double>> sigma_23(size);
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
-		const auto multiplier = smaller_system(_roots[i]).solve(0, x_2, { {0.0, 0.0},{1.0, 0.0} })
-			/ _residues[i];
+		const auto multiplier = smaller_system(_roots[i]).solve(0, x_2, 
+			{ {0.0, 0.0},{1.0, 0.0} }) / _residues[i];
 		const auto r = row(x_1, _roots[i]);
 		const auto r_odd = row(x_1, _roots[i], true);
 		u = u + I * multiplier[0] * r;
@@ -256,10 +264,10 @@ std::vector<double> layer::umoff_pointing(double x_1, double x_2,
 		sigma_23 = sigma_23 + I * multiplier[1] * r;
 	}
 	auto U = conj(u * solution);
-	const auto Sigma_13 = sigma_13 * solution; // !!!!
+	const auto Sigma_13 = sigma_13 * solution;
 	const auto Sigma_23 = sigma_23 * solution;
 	const auto tt = U * Sigma_23;
-	return { (U * Sigma_13).imag(), (tt).imag()};
+	return { (U * Sigma_13).imag(), tt.imag() };
 }
 
 std::complex<double> layer::displacement(double x_1, double x_2,
@@ -337,14 +345,16 @@ inline layer::~layer() {
 
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, double kappa, size_t roots_number,
-	double tolerance) :_mu(mu), _rho(rho), _kappa(kappa), _tolerance(tolerance)
+	double tolerance, bottom_c bc) :_mu(mu), _rho(rho), _kappa(kappa),
+	_tolerance(tolerance), _bc(bc)
 {
 	roots(roots_number);
 }
 
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, const std::string& filename,
-	double tolerance) :_mu(mu), _rho(rho), _tolerance(tolerance)
+	double tolerance, bottom_c bc) :_mu(mu), _rho(rho), _tolerance(tolerance), 
+	_bc(bc)
 {
 	this->load_from_file(filename);
 }
@@ -352,15 +362,16 @@ layer::layer(const function<double(double)>& mu,
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, double kappa,
 	const std::vector<boundary_element*>& elements, size_t roots_number,
-	double tolerance) :layer(mu, rho, kappa, roots_number, tolerance)
+	double tolerance, bottom_c bc) :
+	layer(mu, rho, kappa, roots_number, tolerance, bc)
 {
 	this->_elements = elements;
 }
 
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, const std::string& filename,
-	const std::vector<boundary_element*>& elements, double tolerance)
-	:layer(mu, rho, filename, tolerance)
+	const std::vector<boundary_element*>& elements, double tolerance, 
+	bottom_c bc): layer(mu, rho, filename, tolerance, bc)
 {
 	this->_elements = elements;
 }

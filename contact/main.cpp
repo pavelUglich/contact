@@ -106,12 +106,23 @@ void surface_plot(const std::vector<double>& x_1, const std::vector<double>& x_2
 {
 	const auto matrix = l.displacement(x_1, x_2, solution);
 	std::ofstream ofs(file_name);
+	for (size_t i = 0; i < x_1.size(); i++)
+	{
+		ofs << x_1[i] << " ";
+	}
+	ofs << std::endl;
+	for (size_t i = 0; i < x_2.size(); i++)
+	{
+		ofs << x_2[i] << " ";
+	}
+	ofs << std::endl;
 	for (size_t i = 0; i < x_2.size(); i++)
 	{
 		for (size_t ii = 0; ii < x_1.size(); ii++)
 		{
-			ofs << "" << x_2[i] << ", " << x_1[ii] << ", " << abs(matrix[ii][i]) << ",\n";
+			ofs << abs(matrix[ii][i + 1]) << " ";
 		}
+		ofs << std::endl;
 	}
 	ofs.close();
 }
@@ -163,7 +174,7 @@ int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
 	const auto mass = 1.0;// масса штампа
-	const auto kappa = 2.0; // волновое число
+	const auto kappa = 10.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 	const double y = 1.0;
 	size_t size = 40;// 0;
@@ -197,12 +208,23 @@ int main() {
 			+ 0.5 * (sol1.front() + sol1.back()));
 		const auto gamma = (integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
-		std::vector<double> points(20);
-		for (size_t i = 1; i <= 20; i++)
+
+		std::vector<double> points_x(80);
+		const auto h_x = 2 * a / points_x.size();
+		for (size_t i = 1; i <= points_x.size(); i++)
 		{
-			points[i - 1] = i * 0.05;
+			points_x[i - 1] = i * h_x;
 		}
-		umov_pointing(points, 0.99, sol1, l, "up.txt");
+
+		std::vector<double> points_y(80);
+		const auto h_y = 1.0 / points_y.size();
+		for (size_t i = 1; i <= points_y.size(); i++)
+		{
+			points_y[i - 1] = i * h_y;
+		}
+		//const auto displacement = l.displacement(points_x, points_y, sol1);
+		surface_plot(points_x, points_y, sol1, l, "sp.txt");
+		// umov_pointing(points, 0.99, sol1, l, "up.txt");
 	}
 	//plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);
 	system("pause");
