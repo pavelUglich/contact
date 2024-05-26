@@ -48,8 +48,9 @@ void plotTheWaveField(const std::map<std::string, std::vector<double>>& vectors,
 	stream.close();
 }
 
-void addTheCurve(double step, const std::vector<std::complex<double>>& fieldHomogeneous, std::ofstream& stream,
-	const std::string& color, double a)
+void addTheCurve(double step, 
+	const std::vector<std::complex<double>>& fieldHomogeneous, 
+	std::ofstream& stream, const std::string& color, double a)
 {
 	stream << " \\addplot[line width = 0.25mm, smooth, ";
 	stream << color;
@@ -60,6 +61,22 @@ void addTheCurve(double step, const std::vector<std::complex<double>>& fieldHomo
 	stream << color;
 	stream << "] plot coordinates{\n";
 	showVector(step, fieldHomogeneous, [](auto x) { return x.imag(); }, stream, a);
+	stream << " };\n";
+}
+
+void addTheCurve(const std::vector<double>& nodes, 
+	const std::vector<std::complex<double>>& fieldHomogeneous, 
+	std::ofstream& stream, const std::string& color)
+{
+	stream << " \\addplot[line width = 0.25mm, smooth, ";
+	stream << color;
+	stream << "] plot coordinates{\n";
+	showVector(nodes, fieldHomogeneous, [](auto x) { return x.real(); }, stream);
+	stream << " };\n";
+	stream << " \\addplot[smooth, dashed,";
+	stream << color;
+	stream << "] plot coordinates{\n";
+	showVector(nodes, fieldHomogeneous, [](auto x) { return x.imag(); }, stream);
 	stream << " };\n";
 }
 
@@ -79,6 +96,22 @@ void plotTheWaveField(double step,
 	stream.close();
 }
 
+void plotTheWaveField(const std::vector<double>& nodes, 
+	const std::map<std::string, std::vector<std::complex<double>>>& vectors, 
+	const std::string& fileName)
+{
+	std::ofstream stream(fileName);
+	stream << "\\begin{tikzpicture}[scale=1.1]\\tiny\n";
+	stream << "\\begin{axis}[grid]\n";
+	for (const auto& item : vectors)
+	{
+		addTheCurve(nodes, item.second, stream, item.first);
+	}
+	stream << "\\end{axis}\n";
+	stream << "\\end{tikzpicture}\n";
+	stream.close();
+}
+
 void showVector(double step, const std::vector<std::complex<double>>& complexValuedVector,
 	const std::function<double(std::complex<double>)>& mapping, std::ostream& stream, double a)
 {
@@ -86,6 +119,17 @@ void showVector(double step, const std::vector<std::complex<double>>& complexVal
 	{
 		const auto x = a + i * step;
 		stream << "(" << x << ", " << mapping(complexValuedVector[i]) << ") ";
+	}
+}
+
+void showVector(const std::vector<double>& nodes, 
+	const std::vector<std::complex<double>>& complexValuedVector, 
+	const std::function<double(std::complex<double>)>& mapping, 
+	std::ostream& stream)
+{
+	for (size_t i = 0; i < complexValuedVector.size(); i++)
+	{
+		stream << "(" << nodes[i] << ", " << mapping(complexValuedVector[i]) << ") ";
 	}
 }
 

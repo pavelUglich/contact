@@ -10,7 +10,8 @@
 vector<complex<double>>
 layer::function_and_derivative(complex<double> alpha) const
 {
-	const auto sol1 = bigger_system(alpha).solve(0, 1, { 0,1,0,0 });
+//	const auto sol1 = bigger_system(alpha).solve(0, 1, { 0,1,0,0 });
+	const auto sol1 = bigger_system(alpha).solve(0, 1, initial_conditions(4));
 	return  { sol1[1], sol1[3] };
 }
 
@@ -27,7 +28,7 @@ complex<double> layer::newton_method(complex<double> begin_param) const
 }
 
 double layer::equation(complex<double> alpha) const {
-	return smaller_system(alpha).solve(0, 1, { 0,1 })[1].real();
+	return smaller_system(alpha).solve(0, 1, initial_conditions(2))[1].real();
 }
 
 void layer::roots(size_t roots_number) {
@@ -120,14 +121,29 @@ double layer::get_tolerance() const
 	return this->_tolerance;
 }
 
+std::vector<std::complex<double>> layer::initial_conditions(size_t size) const
+{
+	std::vector<std::complex<double>> result(size);
+	if (this->_bc == CLAMPED)
+	{
+		result[1] = 1;
+	}
+	else
+	{
+		result[0] = 1;
+	}
+	return result;
+}
+
 
 vector<complex<double>> layer::row(double node, size_t size, double y) const
 {
 	vector<complex<double>> result(size);
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
-		const auto multiplier = smaller_system(_roots[i]).solve(0, y, { 0,1 })
-			.front() / _residues[i];
+//		const auto multiplier = smaller_system(_roots[i]).solve(0, y, { 0,1 })
+		const auto multiplier = smaller_system(_roots[i])
+			.solve(0, y, initial_conditions(2)).front() / _residues[i];
 		const auto r = row(node, _roots[i]);
 		result = result + I * multiplier * r;
 	}
@@ -143,7 +159,9 @@ vector<vector<complex<double>>> layer::row(double node, size_t size,
 		vector<complex<double>>(size));
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
-		const auto solution = smaller_system(_roots[i]).solve(points, { 0,1 });
+		//const auto solution = smaller_system(_roots[i]).solve(points, { 0,1 });
+		const auto solution = smaller_system(_roots[i]).solve(points, 
+			initial_conditions(2));
 		vector<complex<double>> multiplier(solution.size());
 		for (size_t ii = 0; ii < solution.size(); ii++)
 		{
@@ -165,7 +183,9 @@ vector<vector<vector<complex<double>>>> layer::row(const vector<double>& nodes,
 		vector<vector<complex<double>>>(points.size(), vector<complex<double>>(size)));
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
-		const auto solution = smaller_system(_roots[i]).solve(points, { 0,1 });
+//		const auto solution = smaller_system(_roots[i]).solve(points, { 0,1 });
+		const auto solution = smaller_system(_roots[i]).solve(points, 
+			initial_conditions(2));
 		vector<complex<double>> multiplier(solution.size());
 		for (size_t ii = 0; ii < solution.size(); ii++)
 		{
@@ -226,7 +246,9 @@ complex<double> layer::right_part(double xi_1, double xi_2) const
 	do {
 		alpha = _roots[n++];
 		auto bigger = bigger_system(alpha);
-		const auto solution = bigger.solve({ 0, xi_2, 1.0 }, { 0, 1, 0, 0 });
+//		const auto solution = bigger.solve({ 0, xi_2, 1.0 }, { 0, 1, 0, 0 });
+		const auto solution = bigger.solve({ 0, xi_2, 1.0 }, 
+			initial_conditions(4));
 		term = solution[1][0] / solution.back().back()
 			* exp(I * alpha * abs(xi_1));
 		result += term;
@@ -256,7 +278,7 @@ std::vector<double> layer::umoff_pointing(double x_1, double x_2,
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
 		const auto multiplier = smaller_system(_roots[i]).solve(0, x_2, 
-			{ {0.0, 0.0},{1.0, 0.0} }) / _residues[i];
+			initial_conditions(2)) / _residues[i];
 		const auto r = row(x_1, _roots[i]);
 		const auto r_odd = row(x_1, _roots[i], true);
 		u = u + I * multiplier[0] * r;

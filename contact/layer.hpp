@@ -95,6 +95,8 @@ protected:
 	/// </summary>
 	/// <returns>точность</returns>
 	double get_tolerance() const;
+
+	std::vector<std::complex<double>> initial_conditions(size_t size) const;
 public:
 	/// <summary>
 	/// система ОДУ в трансформантах (используем, если производная по \alpha не нужна)
@@ -128,22 +130,22 @@ public:
 	layer(const function<double(double)>& mu,
 		const function<double(double)>& rho, double kappa,
 		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5, 
-		bottom_c bc = FREE);
+		bottom_c bc = CLAMPED);
 
 	layer(const function<double(double)>& mu,
 		const function<double(double)>& rho, const std::string& filename, 
-		double tolerance = 0.1e-5, bottom_c bc = FREE);
+		double tolerance = 0.1e-5, bottom_c bc = CLAMPED);
 
 	layer(const function<double(double)>& mu,
 		const function<double(double)>& rho, double kappa,
 		const std::vector<boundary_element* >& elements,
 		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5, 
-		bottom_c bc = FREE);
+		bottom_c bc = CLAMPED);
 
 	layer(const function<double(double)>& mu,
 		const function<double(double)>& rho, const std::string& filename,
 		const std::vector<boundary_element* >& elements,
-		double tolerance = 0.1e-5, bottom_c bc = FREE);
+		double tolerance = 0.1e-5, bottom_c bc = CLAMPED);
 
 	/// <summary>
 	/// правая часть интегрального уравнения
