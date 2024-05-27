@@ -183,7 +183,7 @@ public:
 	void process_points_vector(std::vector<double>& points) const;
 	void save_to_file(const std::string& filename) const;
 	void load_from_file(const std::string& filename);
-
+	std::vector<double> lengths() const;
 	virtual ~layer();
 };
 #endif /* layer_hpp */

@@ -23,3 +23,4 @@ std::map<double, std::complex<double>> constant_element::evaluate(
 	const auto left = -I * (exp(I * alpha * (xi - _left)) - 1.0) / alpha * sign;
 	return { { node, left + right } };
 }
+

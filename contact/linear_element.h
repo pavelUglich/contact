@@ -10,5 +10,6 @@ public:
 
     // Унаследовано через boundary_element
     std::map<double, std::complex<double>> evaluate(std::complex<double> alpha, double xi, bool odd) const override;
+        
 };
 

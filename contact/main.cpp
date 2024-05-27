@@ -249,7 +249,7 @@ int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
 	const auto mass = 1.0;// масса штампа
-	const auto kappa = 1.0; // волновое число
+	const auto kappa = 10.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 	const double y = 1.0;
 	size_t size = 40;// 0;
@@ -270,47 +270,64 @@ int main() {
 	{
 		elements_[i] = new constant_element(nodes[i], nodes[i + 1]);
 	}
-	/*
+/*
 	{
 		std::vector<std::complex<double>> fr;
 		for (size_t i = 0; i < 80; i++)
 		{
 			const double kappa = (i + 1) * 0.1;
 			std::cout << kappa << std::endl;
+			for (size_t i = 0; i < size; i++)
+			{
+				elements[i] = new linear_element(nodes[i], nodes[i + 1]);
+			}
 			layer l(mu, rho, kappa, elements, 40, 0.1e-6);
 			const auto mmm = l.matrix();
 			auto matrix = SquareMatrix<complex<double>>(size + 1, mmm);
-			sol1 = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
-			const complex<double> integral_ = h * (std::accumulate(sol1.begin() + 1, sol1.end() - 1, complex<double>())
-				+ 0.5 * (sol1.front() + sol1.back()));
-			fr.push_back((integral_ - tt) / mass / kappa / kappa);
+			auto sol = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
+			const auto lengths = l.lengths();
+			complex<double> integral_ = 0.5 * (sol.front() * lengths.front() + sol.back() * lengths.back());
+			for (size_t i = 1; i < lengths.size() - 1; i++)
+			{
+				integral_ += 0.5 * sol[i] * (lengths[i - 1] + lengths[i]);
+			}
+			auto gamma = tt / (integral_ - mass * kappa * kappa);
+			fr.push_back(gamma);
 		}
 		plotTheWaveField(0.1, { {"black", fr} }, "fr.txt", 0.1);
-	}*/
-
+	}//*/
+	
 	{
-		layer l(mu, rho, kappa, elements, 50, 0.1e-6); //*/ (mu, rho, "5.txt", elements, FREE); // = { mu, rho, "roots.txt", elements };
-		l.save_to_file("5.txt");
+		layer l/*(mu, rho, kappa, elements, 50, 0.1e-6); //*/ (mu, rho, "10.txt", elements); // = { mu, rho, "roots.txt", elements };
+		const auto lengths = l.lengths();
+		//l.save_to_file("10.txt");
 		auto mmm = l.matrix();
 		auto matrix = SquareMatrix<complex<double>>(mmm.size(), mmm);
 		auto sol = matrix.linSolve(vector<complex<double>>(mmm.size(), { 1,0 }));
-		complex<double> integral_ = h * (std::accumulate(sol.begin() + 1, sol.end() - 1, complex<double>())
-			+ 0.5 * (sol.front() + sol.back()));
-		auto gamma = (integral_ - tt) / mass / kappa / kappa;
-		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x / gamma; });
-		
-		layer l1/*(mu, rho, kappa, elements, 50, 0.1e-6);// */(mu, rho, "5.txt", elements_); // = { mu, rho, "roots.txt", elements };
+		complex<double> integral_ = 0.5 * (sol.front() * lengths.front() + sol.back() * lengths.back());
+		for (size_t i = 1; i < lengths.size() - 1; i++)
+		{
+			integral_ += 0.5 * sol[i] * (lengths[i - 1] + lengths[i]);
+		}
+		auto gamma = tt / (integral_ - mass * kappa * kappa);
+		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x * gamma; });
+/*
+		layer l1/*(mu, rho, kappa, elements, 50, 0.1e-6);//(mu, rho, "10.txt", elements_); // = { mu, rho, "roots.txt", elements };
 		mmm = l1.matrix();
 		matrix = SquareMatrix<complex<double>>(mmm.size(), mmm);
 		sol1 = matrix.linSolve(vector<complex<double>>(mmm.size(), { 1,0 }));
-		integral_ = h * (std::accumulate(sol1.begin(), sol1.end(), complex<double>()));
-		gamma = (integral_ - tt) / mass / kappa / kappa;
-		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x / gamma; });
-		plotTheWaveField(get_nodal_points(elements), {{"red", sol}}, "sol.txt");
+		integral_ = 0;// 0.5 * (sol.front() * lengths.front() + sol.back() * lengths.back());
+		for (size_t i = 0; i < lengths.size(); i++)
+		{
+			integral_ += sol1[i] * lengths[i];
+		}
+		gamma = tt / (integral_ - mass * kappa * kappa);//(integral_ - tt) / mass / kappa / kappa;
+		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x * gamma; });
+		plotTheWaveField(get_nodal_points(elements), { {"red", sol} }, "sol.txt");
 		plotTheWaveField(get_nodal_points(elements_), { {"red", sol1} }, "sol1.txt");
 		//*/
 
-		/*
+
 		std::vector<double> points_x(80);
 		const auto h_x = 2 * a / points_x.size();
 		for (size_t i = 1; i <= points_x.size(); i++)
@@ -326,9 +343,10 @@ int main() {
 		}
 		//const auto displacement = l.displacement(points_x, points_y, sol1);
 		//surface_plot(points_x, points_y, sol, l, "sp.txt");
-		//umov_pointing(points_x, 0.99, sol1, l, "up.txt");
-		//umoff_pointing1(points_x, points_y, sol, l, "up.txt");//*/
-	}
-	plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);//*/
+		//umov_pointing(points_x, 0.99, sol, l, "up.txt");
+		umoff_pointing1(points_x, points_y, sol, l, "up.txt");//*/
+		
+	}//*/
+	//plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);//*/
 	system("pause");
 }

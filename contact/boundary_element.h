@@ -27,6 +27,7 @@ public:
 	virtual std::map<double, std::complex<double>> evaluate(std::complex<double> alpha,
 		double xi, bool odd = false) const = 0;
 	std::vector<double> get_nodal_points() const;
+	double length() const;
 	virtual ~boundary_element() = default;
 };
 

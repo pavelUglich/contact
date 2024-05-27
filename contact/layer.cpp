@@ -360,6 +360,16 @@ void layer::load_from_file(const std::string& filename)
 	ifs.close();
 }
 
+std::vector<double> layer::lengths() const
+{
+	std::vector<double> result(_elements.size());
+	for (size_t i = 0; i < result.size(); i++)
+	{
+		result[i] = _elements[i]->length();
+	}
+	return result;
+}
+
 inline layer::~layer() {
 	for (auto& element : this->_elements)
 		delete element;
