@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <complex>
+#include <functional>
 
 /// <summary>
 /// виртуальный класс
@@ -24,8 +25,13 @@ public:
 	/// <param name="alpha">показатель экспоненты</param>
 	/// <param name="xi">горизонтальная координата</param>
 	/// <returns></returns>
+	//virtual std::map<double, std::complex<double>> evaluate(std::complex<double> alpha,
+	//	double xi, bool odd = false) const = 0;
 	virtual std::map<double, std::complex<double>> evaluate(std::complex<double> alpha,
-		double xi, bool odd = false) const = 0;
+		double xi, const std::function<double(double)>& weight = [](auto x) {return 1.0; },
+		bool odd = false) const = 0;
+
+
 	std::vector<double> get_nodal_points() const;
 	double length() const;
 	virtual ~boundary_element() = default;

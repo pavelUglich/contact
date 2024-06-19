@@ -5,56 +5,20 @@
 #include "constant_element.h"
 #include "linear_element.h"
 
+
+
 const double pi = acos(-1.0);
 
-complex<double> transformant(complex<double> alpha, double _kappa)
-{
-	//return 1.0 / alpha;
-	/*const auto _mu = [](double) {return 1.0; };
-	const auto _rho = [](double) {return 1.0; };
-	OdeSolver<complex<double>> os =
-	{
-		{
-			[=](double x, const vector<complex<double>>& y) {return y[1] / _mu(x); },
-			[=](double x, const vector<complex<double>>& y)
-			{
-				return (alpha * alpha * _mu(x) - _rho(x) * _kappa * _kappa) * y[0];
-			}
-		},
-		0.1e-6,
-		RUNGE_KUTTA_FELDBERG
-	};
-	const auto solution = os.solve(0, 1, { 0,exp(-abs(alpha)) });
-	return solution.front() / solution.back() / alpha;//*/
-	const auto gamma = sqrt(alpha * alpha - _kappa * _kappa);
-	return sinh(gamma) / gamma / cosh(gamma);
-}
-
-complex<double> analytical(double x, double _kappa, double eps = 0.1e-5)
-{
-	complex<double> result = 0;
-	size_t n = 0;
-	complex<double> term;
-	do
-	{
-		const complex<double> frac = (2 * n++ + 1) / 2.0 * pi;
-		const complex<double> alpha = sqrt(_kappa * _kappa - (frac * frac));
-		term = exp(I * alpha * x) / alpha;
-		result += term / alpha;
-	} while (abs(term) > eps);
-	return result;
-}
-
 template<class Fun>
-map<double, vector<complex<double>>> dispersionalSet(double theHighestFrequency, Fun rho, Fun mu)
+map<double, vector<complex<double>>> dispersional_set(
+	double the_highest_frequency, Fun rho, Fun mu)
 {
 	map<double, vector<complex<double>>> result;
 	double kappa = 0.1;
 	const double step = 0.05;
-
 	layer l(mu, rho, kappa, 5);
 	auto roots = l.get_roots();
-	while (kappa < theHighestFrequency)
+	while (kappa < the_highest_frequency)
 	{
 		cout << kappa << endl;
 		result[kappa] = roots;
@@ -65,28 +29,24 @@ map<double, vector<complex<double>>> dispersionalSet(double theHighestFrequency,
 	return result;
 }
 
-
-
-void plotTheDispersionalCurves(
-	map<double, vector<complex<double>>>& dispersionSet,
-	const string& fileName)
+void plot_the_dispersional_curves(map<double, 
+	vector<complex<double>>>& dispersion_set, const string& file_name)
 {
-	ofstream os(fileName);
+	ofstream os(file_name);
 	os << "\\begin{tikzpicture}[scale=1.5]\n";
 	os << "\\begin{axis}[grid]\n";
-	const auto numberOfCurves = dispersionSet.rbegin()->second.size();
-	for (auto [x, y] : dispersionSet) {
+	const auto number_of_curves = dispersion_set.rbegin()->second.size();
+	for (auto [x, y] : dispersion_set) {
 		for (auto& i : y) {
 			if (i.real() < DBL_EPSILON)
 				i = { -i.imag(),0 };
 		}
 		std::ranges::sort(y.begin(), y.end(),
-			[](auto x, auto y) { return x.real() < y.real(); });
+			[](auto xx, auto yy) { return xx.real() < yy.real(); });
 	}
-	//const auto maxFreq = dispersionSet.rbegin()->first;
-	for (size_t i = 0; i < numberOfCurves; i++) {
+	for (size_t i = 0; i < number_of_curves; i++) {
 		os << "\\addplot[smooth, black] plot coordinates{\n";
-		for (auto [x, y] : dispersionSet) {
+		for (auto [x, y] : dispersion_set) {
 			if (i < y.size())
 			{
 				os << "(" << y[i].real() << ", " << x << ") ";
@@ -106,15 +66,9 @@ void surface_plot(const std::vector<double>& x_1, const std::vector<double>& x_2
 {
 	const auto matrix = l.displacement(x_1, x_2, solution);
 	std::ofstream ofs(file_name);
-	for (size_t i = 0; i < x_1.size(); i++)
-	{
-		ofs << x_1[i] << " ";
-	}
+	std::ranges::for_each(x_1.begin(), x_1.end(), [&](auto x) {ofs << x << " "; });
 	ofs << std::endl;
-	for (size_t i = 0; i < x_2.size(); i++)
-	{
-		ofs << x_2[i] << " ";
-	}
+	std::ranges::for_each(x_2.begin(), x_2.end(), [&](auto x) {ofs << x << " "; });
 	ofs << std::endl;
 	for (size_t i = 0; i < x_2.size(); i++)
 	{
@@ -127,21 +81,25 @@ void surface_plot(const std::vector<double>& x_1, const std::vector<double>& x_2
 	ofs.close();
 }
 
+void matrix_t_out(const std::vector<std::vector<double>>& u, std::ofstream& ofs)
+{
+	for (size_t i = 0; i < u.front().size(); i++)
+	{
+		std::ranges::for_each(u.begin(), u.end(),
+			[&ofs, i](auto x) {ofs << x[i] << " "; });
+		ofs << std::endl;
+	}
+}
+
 void umoff_pointing1(const std::vector<double>& x_1, const std::vector<double>& x_2,
 	const std::vector<std::complex<double>>& solution, const layer& l,
 	const std::string& file_name)
 {
 	std::ofstream ofs(file_name);
-	for (size_t i = 0; i < x_1.size(); i++)
-	{
-		ofs << x_1[i] << " ";
-	}
+	std::ranges::for_each(x_1.begin(), x_1.end(), [&ofs](auto x) {ofs << x << " "; });
 	ofs << std::endl;
-	for (size_t i = 0; i < x_2.size(); i++)
-	{
-		ofs << x_2[i] << " ";
-	}
-	ofs << std::endl;//*/
+	std::ranges::for_each(x_2.begin(), x_2.end(), [&ofs](auto x) {ofs << x << " "; });
+	ofs << std::endl;
 	std::vector<std::vector<double>> u(x_1.size(),
 		std::vector<double>(x_2.size()));
 	std::vector<std::vector<double>> v(x_1.size(),
@@ -158,22 +116,8 @@ void umoff_pointing1(const std::vector<double>& x_1, const std::vector<double>& 
 			v[ii][i] = up[1];
 		}
 	}
-	for (size_t i = 0; i < x_2.size(); i++)
-	{
-		for (size_t ii = 0; ii < x_1.size(); ii++)
-		{
-			ofs << u[ii][i] << " ";
-		}
-		ofs << std::endl;
-	}
-	for (size_t i = 0; i < x_2.size(); i++)
-	{
-		for (size_t ii = 0; ii < x_1.size(); ii++)
-		{
-			ofs << v[ii][i] << " ";
-		}
-		ofs << std::endl;
-	}
+	matrix_t_out(u, ofs);
+	matrix_t_out(v, ofs);
 	ofs.close();
 }
 
@@ -197,7 +141,7 @@ void umov_pointing(const std::vector<double>& x_1, double x_2,
 		{
 
 			auto uu = l.umoff_pointing(x, y, solution);
-			const auto norm = sqrt(abs(uu[0]) * abs(uu[0]) + abs(uu[1]) * abs(uu[1]));
+			const auto norm = sqrt(uu[0] * uu[0] + uu[1] * uu[1]);
 			uu = uu / norm;
 			auto new_y = y + uu[1] * hh;
 			while (new_y < 0 || new_y > 1)
@@ -211,21 +155,19 @@ void umov_pointing(const std::vector<double>& x_1, double x_2,
 			{
 				break;
 			}
-			ofs << "(" << x << ", " << y << ") ";// << endl;
+			ofs << "(" << x << ", " << y << ") ";
 		}
 		ofs << "};\n";
 	}
-
 	ofs << "\\end{axis}\n";
 	ofs << "\\end{tikzpicture}";
 	ofs.close();
 }
 
-
 std::vector<double> make_nodes(size_t quantity, double a) {
-	const auto fun = [=](double x) {return 1 - x * x; };
-	std::map<int, double> lengths;
-	const double h = 2.0 / quantity;
+	const auto fun = [=](double x) {return a * a - x * x; };
+	std::map<size_t, double> lengths;
+	const double h = 2.0 * a / quantity;
 	double sum = 0;
 	for (size_t i = 0; i < quantity; i++)
 	{
@@ -233,8 +175,8 @@ std::vector<double> make_nodes(size_t quantity, double a) {
 		sum += lengths[i];
 	}
 	sum /= 2 * a;
-	for (auto& x : lengths) {
-		x.second /= sum;
+	for (auto& [x, y] : lengths) {
+		y /= sum;
 	}
 	std::vector<double> nodes(quantity + 1);
 	nodes[0] = -a;
@@ -245,65 +187,74 @@ std::vector<double> make_nodes(size_t quantity, double a) {
 	return nodes;
 }
 
+template<class Elem>
+vector<boundary_element*> make_elements(const vector<double>& nodes) {
+	std::vector<boundary_element*> elements(nodes.size() - 1);
+	for (size_t i = 0; i < elements.size(); i++)
+	{
+		elements[i] = new Elem(nodes[i], nodes[i + 1]);
+	}
+	return elements;
+}
+
+
+
 int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
 	const auto mass = 1.0;// масса штампа
-	const auto kappa = 10.0; // волновое число
+	const auto kappa = 3.0; // волновое число
 	const auto tt = 1.0; // интенсивность нагрузки	
 	const double y = 1.0;
-	size_t size = 40;// 0;
+	size_t size = 20;// 0;
 	std::vector<std::complex<double>> wavefield(size);
 	std::vector<std::complex<double>> wavefield1(size + 1);
 	const double a = 1.0;
 	const auto h = 2 * a / (double)size;
-	std::vector<boundary_element*> elements(size);
-	std::vector<boundary_element*> elements_(size);
 	double left = -a;
 	vector<complex<double>> sol1;
 	const auto nodes = make_nodes(size, a);
-	for (size_t i = 0; i < size; i++)
-	{
-		elements[i] = new linear_element(nodes[i], nodes[i + 1]);
-	}
-	for (size_t i = 0; i < size; i++)
-	{
-		elements_[i] = new constant_element(nodes[i], nodes[i + 1]);
-	}
-/*
-	{
-		std::vector<std::complex<double>> fr;
-		for (size_t i = 0; i < 80; i++)
+	const auto elements = make_elements<linear_element>(nodes);
+	const auto elements_ = make_elements<constant_element>(nodes);
+	/*
 		{
-			const double kappa = (i + 1) * 0.1;
-			std::cout << kappa << std::endl;
-			for (size_t i = 0; i < size; i++)
+			std::vector<std::complex<double>> fr;
+			for (size_t i = 0; i < 80; i++)
 			{
-				elements[i] = new linear_element(nodes[i], nodes[i + 1]);
+				const double kappa = (i + 1) * 0.1;
+				std::cout << kappa << std::endl;
+				for (size_t i = 0; i < size; i++)
+				{
+					elements[i] = new linear_element(nodes[i], nodes[i + 1]);
+				}
+				layer l(mu, rho, kappa, elements, 40, 0.1e-6);
+				const auto mmm = l.matrix();
+				auto matrix = SquareMatrix<complex<double>>(size + 1, mmm);
+				auto sol = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
+				const auto lengths = l.lengths();
+				complex<double> integral_ = 0.5 * (sol.front() * lengths.front() + sol.back() * lengths.back());
+				for (size_t i = 1; i < lengths.size() - 1; i++)
+				{
+					integral_ += 0.5 * sol[i] * (lengths[i - 1] + lengths[i]);
+				}
+				auto gamma = tt / (integral_ - mass * kappa * kappa);
+				fr.push_back(gamma);
 			}
-			layer l(mu, rho, kappa, elements, 40, 0.1e-6);
-			const auto mmm = l.matrix();
-			auto matrix = SquareMatrix<complex<double>>(size + 1, mmm);
-			auto sol = matrix.linSolve(vector<complex<double>>(size + 1, { 1,0 }));
-			const auto lengths = l.lengths();
-			complex<double> integral_ = 0.5 * (sol.front() * lengths.front() + sol.back() * lengths.back());
-			for (size_t i = 1; i < lengths.size() - 1; i++)
-			{
-				integral_ += 0.5 * sol[i] * (lengths[i - 1] + lengths[i]);
-			}
-			auto gamma = tt / (integral_ - mass * kappa * kappa);
-			fr.push_back(gamma);
-		}
-		plotTheWaveField(0.1, { {"black", fr} }, "fr.txt", 0.1);
-	}//*/
-	
+			plotTheWaveField(0.1, { {"black", fr} }, "fr.txt", 0.1);
+		}//*/
+
 	{
-		layer l/*(mu, rho, kappa, elements, 50, 0.1e-6); //*/ (mu, rho, "10.txt", elements); // = { mu, rho, "roots.txt", elements };
+		layer l(mu, rho, kappa, elements_, 80, 0.1e-6); //*/ (mu, rho, "10.txt", elements_); // = { mu, rho, "roots.txt", elements };
 		const auto lengths = l.lengths();
-		//l.save_to_file("10.txt");
-		auto mmm = l.matrix();
+		const auto weight = [=](double x) {return 1.0 / sqrt(a * a - x * x); };
+		auto mmm = l.matrix();//(weight);
 		auto matrix = SquareMatrix<complex<double>>(mmm.size(), mmm);
 		auto sol = matrix.linSolve(vector<complex<double>>(mmm.size(), { 1,0 }));
+		const auto nodes = get_nodal_points(elements_);
+		for (size_t i = 0; i < sol.size(); i++)
+		{
+			sol[i] *= weight(nodes[i]);
+		}
 		complex<double> integral_ = 0.5 * (sol.front() * lengths.front() + sol.back() * lengths.back());
 		for (size_t i = 1; i < lengths.size() - 1; i++)
 		{
@@ -311,7 +262,8 @@ int main() {
 		}
 		auto gamma = tt / (integral_ - mass * kappa * kappa);
 		std::ranges::transform(sol.begin(), sol.end(), sol.begin(), [=](auto x) {return x * gamma; });
-/*
+		plotTheWaveField(nodes, { {"red", sol} }, "sol.txt");
+		/*
 		layer l1/*(mu, rho, kappa, elements, 50, 0.1e-6);//(mu, rho, "10.txt", elements_); // = { mu, rho, "roots.txt", elements };
 		mmm = l1.matrix();
 		matrix = SquareMatrix<complex<double>>(mmm.size(), mmm);
@@ -324,10 +276,9 @@ int main() {
 		gamma = tt / (integral_ - mass * kappa * kappa);//(integral_ - tt) / mass / kappa / kappa;
 		std::ranges::transform(sol1.begin(), sol1.end(), sol1.begin(), [=](auto x) {return x * gamma; });
 		plotTheWaveField(get_nodal_points(elements), { {"red", sol} }, "sol.txt");
-		plotTheWaveField(get_nodal_points(elements_), { {"red", sol1} }, "sol1.txt");
 		//*/
 
-
+		/*
 		std::vector<double> points_x(80);
 		const auto h_x = 2 * a / points_x.size();
 		for (size_t i = 1; i <= points_x.size(); i++)
@@ -340,12 +291,12 @@ int main() {
 		for (size_t i = 1; i <= points_y.size(); i++)
 		{
 			points_y[i - 1] = (i - 0.5) * h_y;
-		}
+		}*/
 		//const auto displacement = l.displacement(points_x, points_y, sol1);
 		//surface_plot(points_x, points_y, sol, l, "sp.txt");
 		//umov_pointing(points_x, 0.99, sol, l, "up.txt");
-		umoff_pointing1(points_x, points_y, sol, l, "up.txt");//*/
-		
+		//umoff_pointing1(points_x, points_y, sol, l, "up.txt");//*/
+
 	}//*/
 	//plotTheWaveField(h, { {"red", wavefield}, {"blue", wavefield1} }, "wavefield.txt", -a + h / 2);//*/
 	system("pause");
