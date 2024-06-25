@@ -108,22 +108,19 @@ public:
 	/// <returns></returns>
 	OdeSolver<complex<double>> smaller_system(complex<double> alpha) const;
 
-	//vector<complex<double>> row(double node, complex<double> root, bool odd = false) const;
 	vector<complex<double>> row(double node, complex<double> root, 
 		const function<double(double)>& weight = [](double x) {return 1.0; }, 
 		bool odd = false) const;
 
 	vector<vector<complex<double>>> row(const vector<double>& node, complex<double> root) const;
 
-	//vector<complex<double>> row(double node, size_t size, double y = 1.0) const;
 	vector<complex<double>> row(double node, size_t size, 
-		const function<double(double)>& weight = [](double x) {return 1.0; }, 
+		const function<double(double)>& weight = [](double) {return 1.0; }, 
 		double y = 1.0) const;
-
-
 
 	vector<vector<complex<double>>> row(double node, size_t size, 
 		const vector<double>& y) const;
+
 	vector<vector<vector<complex<double>>>> row(const vector<double>& node, 
 		size_t size, const vector<double>& y) const;
 
@@ -169,10 +166,9 @@ public:
 	/// <returns></returns>
 	complex<double> right_part(double xi_1, double xi_2) const;
 
-	//vector<vector<complex<double>>> matrix() const;
 
 	vector<vector<complex<double>>> matrix(
-		const function<double(double)>& weight = [](double x) {return 1.0; }) const;
+		const function<double(double)>& weight = [](double) {return 1.0; }) const;
 
 
 	std::vector<double> umoff_pointing(double x_1, double x_2, 
@@ -202,6 +198,9 @@ public:
 	void save_to_file(const std::string& filename) const;
 	void load_from_file(const std::string& filename);
 	std::vector<double> lengths() const;
+
+	void set_elements(const std::vector<boundary_element*>& elements);
+	double get_kappa() const;
 	virtual ~layer();
 };
 #endif /* layer_hpp */

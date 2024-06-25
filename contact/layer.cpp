@@ -412,6 +412,16 @@ std::vector<double> layer::lengths() const
 	return result;
 }
 
+void layer::set_elements(const std::vector<boundary_element*>& elements)
+{
+	_elements = elements;
+}
+
+double layer::get_kappa() const
+{
+	return _kappa;
+}
+
 inline layer::~layer() {
 	for (auto& element : this->_elements)
 		delete element;

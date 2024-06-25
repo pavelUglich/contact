@@ -145,6 +145,7 @@
     <ClInclude Include="Integral.h" />
     <ClInclude Include="layer.hpp" />
     <ClInclude Include="linear_element.h" />
+    <ClInclude Include="main.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="OdeSolver.h" />
     <ClInclude Include="plots.h" />
