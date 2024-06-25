@@ -31,6 +31,10 @@ public:
 		double xi, const std::function<double(double)>& weight = [](auto x) {return 1.0; },
 		bool odd = false) const = 0;
 
+	virtual std::complex<double> evaluate_integral(
+		const std::vector<std::complex<double>>& solution,
+		const std::function<double(double)>& weight 
+		= [](auto x) {return 1.0; }) const = 0;
 
 	std::vector<double> get_nodal_points() const;
 	double length() const;

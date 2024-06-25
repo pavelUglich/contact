@@ -219,11 +219,7 @@ void solve_with_constant_elems(layer& l, double a, size_t size,
 	{
 		sol[i] *= weight(nodes[i]);
 	}
-	complex<double> integral = 0;
-	for (size_t i = 0; i < lengths.size(); i++)
-	{
-		integral += sol[i] * lengths[i];
-	}
+	const auto integral = l.evaluate_integral(sol);
 	const auto kappa = l.get_kappa();
 	const auto gamma = tt / (integral - mass * kappa * kappa);
 	std::ranges::transform(sol.begin(), sol.end(), sol.begin(),
@@ -236,18 +232,13 @@ void solve_with_linear_elems(layer& l, double a, size_t size,
 	const std::string& file_name, double mass = 1.0, double tt = 1.0)
 {
 	const auto points = make_nodes(size, a);
-	const auto elements = make_elements<constant_element>(points);
+	const auto elements = make_elements<linear_element>(points);
 	l.set_elements(elements);
 	const auto m = l.matrix();
 	const auto matrix = SquareMatrix<complex<double>>(m.size(), m);
 	auto sol = matrix.linSolve(vector<complex<double>>(m.size(), { 1,0 }));
 	const auto lengths = l.lengths();
-	complex<double> integral = 0.5 * (sol.front() * lengths.front()
-		+ sol.back() * lengths.back());
-	for (size_t i = 1; i < lengths.size() - 1; i++)
-	{
-		integral += 0.5 * sol[i] * (lengths[i - 1] + lengths[i]);
-	}
+	const auto integral = l.evaluate_integral(sol);
 	const auto kappa = l.get_kappa();
 	const auto nodes = get_nodal_points(elements);
 	const auto gamma = tt / (integral - mass * kappa * kappa);
@@ -256,11 +247,38 @@ void solve_with_linear_elems(layer& l, double a, size_t size,
 	plotTheWaveField(get_nodal_points(elements), { {"red", sol} }, file_name);
 }
 
+void solve_with_linear_elems_weighted(layer& l, double a, size_t size,
+	const std::string& file_name, double mass = 1.0, double tt = 1.0)
+{
+	const auto points = make_nodes(size, a);
+	const auto elements = make_elements<linear_element>(points);
+	l.set_elements(elements);
+	const auto weight = [a](double x) {return a * a - x * x; };
+	const auto m = l.matrix(weight);
+	const auto matrix = SquareMatrix<complex<double>>(m.size(), m);
+	auto sol = matrix.linSolve(vector<complex<double>>(m.size(), { 1,0 }));
+	const auto lengths = l.lengths();
+	const auto integral = l.evaluate_integral(sol, weight);
+	const auto kappa = l.get_kappa();
+	auto nodes = get_nodal_points(elements);
+	const auto gamma = tt / (integral - mass * kappa * kappa);
+	sol.erase(sol.begin()); sol.erase(sol.end() - 1);
+	nodes.erase(nodes.begin()); nodes.erase(nodes.end() - 1);
+	for (size_t i = 0; i < nodes.size(); i++)
+	{
+		sol[i] *= weight(nodes[i]);
+	}
+	std::ranges::transform(sol.begin(), sol.end(), sol.begin(),
+		[gamma](auto x) {return x * gamma; });
+	plotTheWaveField(nodes, { {"red", sol} }, file_name);
+}
 
 int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
-	layer l(mu, rho, 4.0, 50, 0.1e-5, FREE);
-	solve_with_linear_elems(l, 1.0, 20, "sol.txt");
+	layer l(mu, rho, 3.0, 50, 0.1e-5, FREE);
+	//solve_with_constant_elems(l, 1.0, 20, "sol1.txt");
+	//solve_with_linear_elems(l, 1.0, 20, "sol2.txt");
+	solve_with_linear_elems_weighted(l, 1.0, 20, "sol3.txt");
 	system("pause");
 }

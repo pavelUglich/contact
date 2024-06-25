@@ -201,6 +201,10 @@ public:
 
 	void set_elements(const std::vector<boundary_element*>& elements);
 	double get_kappa() const;
+
+	std::complex<double> evaluate_integral(
+		const std::vector<std::complex<double>>& solution, 
+		const std::function<double(double)>& weight = [](double x) {return 1.0; }) const;
 	virtual ~layer();
 };
 #endif /* layer_hpp */

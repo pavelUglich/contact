@@ -11,11 +11,10 @@ public:
 	//	double xi, bool odd) const override;
 	std::map<double, std::complex<double>> evaluate(std::complex<double> alpha, 
 		double xi, const std::function<double(double)>& weight, bool odd) const override;
-	/*
-		virtual std::map<double, std::complex<double>> evaluate(std::complex<double> alpha,
-		double xi, const std::function<double(double)>& weight, 
-		bool odd = false) const = 0;
 
-	*/
+
+	std::complex<double> evaluate_integral(const std::vector<std::complex<double>>& solution, 
+		const std::function<double(double)>& weight) const override;
+
 };
 

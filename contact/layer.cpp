@@ -191,7 +191,8 @@ vector<vector<vector<complex<double>>>> layer::row(const vector<double>& nodes,
 	auto points = y;
 	process_points_vector(points);
 	vector<vector<vector<complex<double>>>> result(nodes.size(),
-		vector<vector<complex<double>>>(points.size(), vector<complex<double>>(size)));
+		vector<vector<complex<double>>>(points.size(), 
+			vector<complex<double>>(size)));
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
 		const auto solution = smaller_system(_roots[i]).solve(points, 
@@ -322,7 +323,8 @@ std::vector<double> layer::umoff_pointing(double x_1, double x_2,
 		const auto multiplier = smaller_system(_roots[i]).solve(0, x_2, 
 			initial_conditions(2)) / _residues[i];
 		const auto r = row(x_1, _roots[i]);
-		const auto r_odd = row(x_1, _roots[i], [](double x) {return 1.0; }, true);
+		const auto r_odd = row(x_1, _roots[i], [](double x) {return 1.0; },
+			true);
 		u = u + I * multiplier[0] * r;
 		sigma_13 = sigma_13 + _roots[i] * multiplier[0] * r_odd;
 		sigma_23 = sigma_23 + I * multiplier[1] * r;
@@ -337,7 +339,8 @@ std::vector<double> layer::umoff_pointing(double x_1, double x_2,
 std::complex<double> layer::displacement(double x_1, double x_2,
 	const std::vector<std::complex<double>>& solution) const
 {
-	const auto r = this->row(x_1, solution.size(), [](double x) {return 1.0; }, x_2);
+	const auto r = this->row(x_1, solution.size(), 
+		[](double x) {return 1.0; }, x_2);
 	return r * solution;
 }
 
@@ -420,6 +423,31 @@ void layer::set_elements(const std::vector<boundary_element*>& elements)
 double layer::get_kappa() const
 {
 	return _kappa;
+}
+
+std::complex<double> layer::evaluate_integral(
+	const std::vector<std::complex<double>>& solution, 
+	const std::function<double(double)>& weight) const
+{
+	const auto nodes = get_nodal_points(this->_elements);
+	if (nodes.size() != solution.size())
+	{
+		throw std::exception();
+	}
+	std::complex<double> result;
+	for (size_t i = 0; i < _elements.size(); i++)
+	{
+		const auto n = _elements[i]->get_nodal_points();
+		std::vector<std::complex<double>> indices(n.size());
+		for (size_t ii = 0; ii < n.size(); ii++)
+		{
+			const auto index = std::find(nodes.begin(), nodes.end(), n[ii]) 
+				- nodes.begin();
+			indices[ii] = solution[index];
+		}
+		result += _elements[i]->evaluate_integral(indices, weight);
+	}
+	return result;
 }
 
 inline layer::~layer() {
