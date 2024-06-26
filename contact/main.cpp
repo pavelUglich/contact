@@ -183,7 +183,14 @@ std::vector<double> make_nodes(size_t quantity, double a) {
 	for (size_t i = 0; i < quantity; i++)
 	{
 		nodes[i + 1] = nodes[i] + lengths[i];
-	}
+	}//*/
+	/*const auto h = 2 * a / quantity;
+	std::vector<double> nodes(quantity + 1);
+	nodes[0] = -a;
+	for (size_t i = 0; i < quantity; i++)
+	{
+		nodes[i + 1] = nodes[i] + h;
+	}*/
 	return nodes;
 }
 
@@ -276,9 +283,9 @@ void solve_with_linear_elems_weighted(layer& l, double a, size_t size,
 int main() {
 	const auto mu = [](double x) {return 1.0 + x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
-	layer l(mu, rho, 3.0, 50, 0.1e-5, FREE);
-	//solve_with_constant_elems(l, 1.0, 20, "sol1.txt");
-	//solve_with_linear_elems(l, 1.0, 20, "sol2.txt");
-	solve_with_linear_elems_weighted(l, 1.0, 20, "sol3.txt");
+	layer l(mu, rho, 1.0, 50, 0.1e-5, FREE);
+	solve_with_constant_elems(l, 1.0, 40, "sol1.txt");
+	//solve_with_linear_elems(l, 1.0, 40, "sol2.txt");
+	//solve_with_linear_elems_weighted(l, 1.0, 20, "sol3.txt");
 	system("pause");
 }
