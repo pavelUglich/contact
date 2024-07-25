@@ -134,19 +134,6 @@ std::vector<std::complex<double>> layer::initial_conditions(size_t size) const
 	return result;
 }
 
-/*
-vector<complex<double>> layer::row(double node, size_t size, double y) const
-{
-	vector<complex<double>> result(size);
-	for (size_t i = 0; i < _roots.size(); i++)
-	{
-		const auto multiplier = smaller_system(_roots[i])
-			.solve(0, y, initial_conditions(2)).front() / _residues[i];
-		const auto r = row(node, _roots[i]);
-		result = result + I * multiplier * r;
-	}
-	return result;
-}*/
 
 vector<complex<double>> layer::row(double node, size_t size, 
 	const function<double(double)>& weight, double y) const

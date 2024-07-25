@@ -30,6 +30,8 @@ std::vector<double> get_nodal_points(const std::vector<boundary_element*>& eleme
 class layer {
 	// распределения модуля сдвига и плотности
 	function<double(double)> _mu;
+	function<double(double)> _c_44;
+	function<double(double)> _c_66;
 	function<double(double)> _rho;
 
 	// функция для учёта краевых особенностей
