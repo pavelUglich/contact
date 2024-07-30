@@ -29,9 +29,9 @@ std::vector<double> get_nodal_points(const std::vector<boundary_element*>& eleme
 /// </summary>
 class layer {
 	// распределения модуля сдвига и плотности
-	function<double(double)> _mu;
+	//function<double(double)> _mu;
 	function<double(double)> _c_44;
-	function<double(double)> _c_66;
+	function<double(double)> _c_55;
 	function<double(double)> _rho;
 
 	// функция для учёта краевых особенностей
@@ -159,6 +159,28 @@ public:
 		const function<double(double)>& rho, const std::string& filename,
 		const std::vector<boundary_element* >& elements,
 		double tolerance = 0.1e-5, bottom_c bc = CLAMPED);
+
+
+	layer(const function<double(double)>& c_44, const function<double(double)>& c_55,
+		const function<double(double)>& rho, double kappa,
+		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5,
+		bottom_c bc = CLAMPED);
+
+	layer(const function<double(double)>& c_44, const function<double(double)>& c_55,
+		const function<double(double)>& rho, const std::string& filename,
+		double tolerance = 0.1e-5, bottom_c bc = CLAMPED);
+
+	layer(const function<double(double)>& c_44, const function<double(double)>& c_55,
+		const function<double(double)>& rho, double kappa,
+		const std::vector<boundary_element* >& elements,
+		size_t roots_number = MAX_ROOTS_NUMBER, double tolerance = 0.1e-5,
+		bottom_c bc = CLAMPED);
+
+	layer(const function<double(double)>& c_44, const function<double(double)>& c_55,
+		const function<double(double)>& rho, const std::string& filename,
+		const std::vector<boundary_element* >& elements,
+		double tolerance = 0.1e-5, bottom_c bc = CLAMPED);
+//*/
 
 	/// <summary>
 	/// правая часть интегрального уравнения

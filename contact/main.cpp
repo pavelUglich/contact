@@ -17,19 +17,19 @@ const double pi = acos(-1.0);
 /// <returns>ассоциативный контейнер</returns>
 template<class Fun>
 map<double, vector<complex<double>>> dispersional_set(
-	double the_highest_frequency, Fun rho, Fun mu)
+	double the_highest_frequency, Fun rho, Fun c_44, Fun c_55, bottom_c bc = CLAMPED)
 {
 	map<double, vector<complex<double>>> result;
 	double kappa = 0.1;
 	const double step = 0.05;
-	layer l(mu, rho, kappa, 5);
+	layer l = { c_44, c_55, rho, kappa, 5, 1.0e-6, bc };
 	auto roots = l.get_roots();
 	while (kappa < the_highest_frequency)
 	{
 		cout << kappa << endl;
 		result[kappa] = roots;
 		kappa += step;
-		l = { mu, rho, kappa, 7 };
+		l = { c_44, c_55, rho, kappa, 7, 1.0e-6, bc };
 		roots = l.get_roots();
 	}
 	return result;
@@ -47,7 +47,7 @@ void plot_the_dispersional_curves(map<double,
 	os << "\\begin{tikzpicture}[scale=1.5]\n";
 	os << "\\begin{axis}[grid]\n";
 	const auto number_of_curves = dispersion_set.rbegin()->second.size();
-	for (auto [x, y] : dispersion_set) {
+	for (auto& [x, y] : dispersion_set) {
 		for (auto& i : y) {
 			if (i.real() < DBL_EPSILON)
 				i = { -i.imag(),0 };
@@ -165,6 +165,7 @@ void umoff_pointing1(const std::vector<double>& x_1,
 /// <param name="a">граница отрезка [-a,a]</param>
 /// <returns>вектор узловых точек</returns>
 std::vector<double> make_nodes(size_t quantity, double a) {
+	/*
 	const auto fun = [=](double x) {return a * a - x * x; };
 	std::map<size_t, double> lengths;
 	const double h = 2.0 * a / static_cast<double>(quantity);
@@ -184,13 +185,13 @@ std::vector<double> make_nodes(size_t quantity, double a) {
 	{
 		nodes[i + 1] = nodes[i] + lengths[i];
 	}//*/
-	/*const auto h = 2 * a / quantity;
+	const auto h = 2 * a / quantity;
 	std::vector<double> nodes(quantity + 1);
 	nodes[0] = -a;
 	for (size_t i = 0; i < quantity; i++)
 	{
 		nodes[i + 1] = nodes[i] + h;
-	}*/
+	}//*/
 	return nodes;
 }
 
@@ -210,9 +211,9 @@ vector<boundary_element*> make_elements(const vector<double>& nodes) {
 	return elements;
 }
 
-void solve_with_constant_elems(layer& l, double a, size_t size,
-	const std::string& file_name, double mass = 1.0, double tt = 1.0)
-{
+
+std::vector<std::complex<double>> get_solution(layer& l, double a, size_t size,
+	double mass = 1.0, double tt = 1.0) {
 	const auto points = make_nodes(size, a);
 	const auto elements = make_elements<constant_element>(points);
 	l.set_elements(elements);
@@ -231,6 +232,34 @@ void solve_with_constant_elems(layer& l, double a, size_t size,
 	const auto gamma = tt / (integral - mass * kappa * kappa);
 	std::ranges::transform(sol.begin(), sol.end(), sol.begin(),
 		[gamma](auto x) {return x * gamma; });
+	return sol;
+}
+
+void solve_with_constant_elems(layer& l, double a, size_t size,
+	const std::string& file_name, double mass = 1.0, double tt = 1.0)
+{
+	/*
+	const auto points = make_nodes(size, a);
+	const auto elements = make_elements<constant_element>(points);
+	l.set_elements(elements);
+	const auto weight = [a](double x) {return 1.0 / sqrt(a * a - x * x); };
+	const auto m = l.matrix(weight);
+	const auto matrix = SquareMatrix<complex<double>>(m.size(), m);
+	auto sol = matrix.linSolve(vector<complex<double>>(m.size(), { 1,0 }));
+	const auto lengths = l.lengths();
+	const auto nodes = get_nodal_points(elements);
+	for (size_t i = 0; i < nodes.size(); i++)
+	{
+		sol[i] *= weight(nodes[i]);
+	}
+	const auto integral = l.evaluate_integral(sol);
+	const auto kappa = l.get_kappa();
+	const auto gamma = tt / (integral - mass * kappa * kappa);
+	std::ranges::transform(sol.begin(), sol.end(), sol.begin(),
+		[gamma](auto x) {return x * gamma; });*/
+	const auto points = make_nodes(size, a);
+	const auto elements = make_elements<constant_element>(points);
+	const auto sol = get_solution(l, a, size, mass, tt);
 	plotTheWaveField(get_nodal_points(elements), { {"red", sol} }, file_name);
 }
 
@@ -281,11 +310,35 @@ void solve_with_linear_elems_weighted(layer& l, double a, size_t size,
 }
 
 int main() {
-	const auto mu = [](double x) {return 1.0 + x; };
+	const auto c_44 = [](double x) {return 1.0 + x; };
+	const auto c_55 = [](double x) {return 2.0 - x; };
 	const auto rho = [](double x) {return 1.0 + exp(-x); };
-	layer l(mu, rho, 1.0, 50, 0.1e-5, FREE);
-	solve_with_constant_elems(l, 1.0, 40, "sol1.txt");
-	//solve_with_linear_elems(l, 1.0, 40, "sol2.txt");
-	//solve_with_linear_elems_weighted(l, 1.0, 20, "sol3.txt");
+	/*
+		дисперсионные кривые
+		auto ds = dispersional_set<std::function<double(double)>>(10, rho, c_44, c_55, FREE);
+		plot_the_dispersional_curves(ds, "ds.txt");
+	*/
+
+	// Решение контактной задачи
+	const auto width = 1.0;
+	const auto kappa = 1.0;
+	const auto n = 20;
+	const auto elements = make_elements<constant_element>(make_nodes(n, width));
+	layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, FREE);
+	const auto solution = get_solution(ll, width, n);
+	// волновое поле
+	std::vector<double> x_1(2 * n);
+	const auto h_x = 2 * width / n;
+	const auto h_y = width / n;
+	for (size_t i = 0; i < 2 * n; i++)
+	{
+		x_1[i] = (i + 0.5) * h_x;
+	}
+	std::vector<double> x_2(n);
+	for (size_t i = 0; i < n; i++)
+	{
+		x_2[i] = (i + 0.5) * h_y;
+	}
+	surface_plot(x_1, x_2, solution, ll, "wf.txt");
 	system("pause");
 }

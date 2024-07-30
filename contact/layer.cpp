@@ -75,11 +75,11 @@ OdeSolver<complex<double>> layer::smaller_system(complex<double> alpha) const
 		{
 			[this](double x, const vector<complex<double>>& y)
 			{
-				return y[1] / _mu(x);
+				return y[1] / _c_44(x);
 			},
 			[this, alpha](double x, const vector<complex<double>>& y)
 			{
-				return (alpha * alpha * _mu(x) - _rho(x) * _kappa * _kappa)
+				return (alpha * alpha * _c_55(x) - _rho(x) * _kappa * _kappa)
 					* y[0];
 			}
 		},
@@ -93,16 +93,16 @@ OdeSolver<complex<double>> layer::bigger_system(complex<double> alpha) const
 	return
 	{
 		{
-			[this](double x, const vector<complex<double>>& y) {return y[1] / _mu(x); },
+			[this](double x, const vector<complex<double>>& y) {return y[1] / _c_44(x); },
 			[this, alpha](double x, const vector<complex<double>>& y)
 			{
-				return (alpha * alpha * _mu(x) - _rho(x) * _kappa * _kappa) * y[0];
+				return (alpha * alpha * _c_55(x) - _rho(x) * _kappa * _kappa) * y[0];
 			},
-			[this](double x, const vector<complex<double>>& y) {return y[3] / _mu(x); },
+			[this](double x, const vector<complex<double>>& y) {return y[3] / _c_44(x); },
 			[this, alpha](double x, const vector<complex<double>>& y)
 			{
-				return  2.0 * alpha * _mu(x) * y[0]
-					+ (alpha * alpha * _mu(x) - _rho(x) * _kappa * _kappa) * y[2];
+				return  2.0 * alpha * _c_55(x) * y[0]
+					+ (alpha * alpha * _c_55(x) - _rho(x) * _kappa * _kappa) * y[2];
 			}
 		},
 		_tolerance,
@@ -135,7 +135,7 @@ std::vector<std::complex<double>> layer::initial_conditions(size_t size) const
 }
 
 
-vector<complex<double>> layer::row(double node, size_t size, 
+vector<complex<double>> layer::row(double node, size_t size,
 	const function<double(double)>& weight, double y) const
 {
 	vector<complex<double>> result(size);
@@ -158,7 +158,7 @@ vector<vector<complex<double>>> layer::row(double node, size_t size,
 		vector<complex<double>>(size));
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
-		const auto solution = smaller_system(_roots[i]).solve(points, 
+		const auto solution = smaller_system(_roots[i]).solve(points,
 			initial_conditions(2));
 		vector<complex<double>> multiplier(solution.size());
 		for (size_t ii = 0; ii < solution.size(); ii++)
@@ -178,11 +178,11 @@ vector<vector<vector<complex<double>>>> layer::row(const vector<double>& nodes,
 	auto points = y;
 	process_points_vector(points);
 	vector<vector<vector<complex<double>>>> result(nodes.size(),
-		vector<vector<complex<double>>>(points.size(), 
+		vector<vector<complex<double>>>(points.size(),
 			vector<complex<double>>(size)));
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
-		const auto solution = smaller_system(_roots[i]).solve(points, 
+		const auto solution = smaller_system(_roots[i]).solve(points,
 			initial_conditions(2));
 		vector<complex<double>> multiplier(solution.size());
 		for (size_t ii = 0; ii < solution.size(); ii++)
@@ -199,26 +199,7 @@ vector<vector<vector<complex<double>>>> layer::row(const vector<double>& nodes,
 	return result;
 }
 
-/*
-vector<complex<double>> layer::row(double node,
-	complex<double> root, bool odd) const
-{
-	std::map<double, complex<double>> result;
-	for (const auto& element : this->_elements)
-	{
-		const auto val = element->evaluate(root, node, odd);
-		for (const auto& [key, value] : val)
-		{
-			result[key] += value;
-		}
-	}
-	std::vector<complex<double>> v(result.size());
-	std::ranges::transform(result.begin(), result.end(), v.begin(), 
-		[](auto x) {return x.second; });
-	return v;
-}*/
-
-vector<complex<double>> layer::row(double node, complex<double> root, 
+vector<complex<double>> layer::row(double node, complex<double> root,
 	const function<double(double)>& weight, bool odd) const
 {
 	std::map<double, complex<double>> result;
@@ -254,7 +235,7 @@ vector<complex<double>> layer::get_roots() const
 
 
 
-complex<double> layer::right_part(double xi_1, double xi_2) const 
+complex<double> layer::right_part(double xi_1, double xi_2) const
 {
 	complex<double> result = 0;
 	complex<double> term;
@@ -263,7 +244,7 @@ complex<double> layer::right_part(double xi_1, double xi_2) const
 	do {
 		alpha = _roots[n++];
 		const auto bigger = bigger_system(alpha);
-		const auto solution = bigger.solve({ 0, xi_2, 1.0 }, 
+		const auto solution = bigger.solve({ 0, xi_2, 1.0 },
 			initial_conditions(4));
 		term = solution[1][0] / solution.back().back()
 			* exp(I * alpha * abs(xi_1));
@@ -271,19 +252,6 @@ complex<double> layer::right_part(double xi_1, double xi_2) const
 	} while (abs(term) > _tolerance && n < _roots.size());
 	return I * result;
 }
-
-/*
-vector<vector<complex<double>>> layer::matrix() const
-{
-	const auto nodes = get_nodal_points(this->_elements);
-	const size_t matrix_size = nodes.size();
-	vector<vector<complex<double>>> result(matrix_size);
-	for (size_t i = 0; i < matrix_size; i++)
-	{
-		result[i] = row(nodes[i], matrix_size);
-	}
-	return result;
-}*/
 
 vector<vector<complex<double>>> layer::matrix(
 	const function<double(double)>& weight) const
@@ -307,7 +275,7 @@ std::vector<double> layer::umoff_pointing(double x_1, double x_2,
 	vector<complex<double>> sigma_23(size);
 	for (size_t i = 0; i < _roots.size(); i++)
 	{
-		const auto multiplier = smaller_system(_roots[i]).solve(0, x_2, 
+		const auto multiplier = smaller_system(_roots[i]).solve(0, x_2,
 			initial_conditions(2)) / _residues[i];
 		const auto r = row(x_1, _roots[i]);
 		const auto r_odd = row(x_1, _roots[i], [](double x) {return 1.0; },
@@ -326,7 +294,7 @@ std::vector<double> layer::umoff_pointing(double x_1, double x_2,
 std::complex<double> layer::displacement(double x_1, double x_2,
 	const std::vector<std::complex<double>>& solution) const
 {
-	const auto r = this->row(x_1, solution.size(), 
+	const auto r = this->row(x_1, solution.size(),
 		[](double x) {return 1.0; }, x_2);
 	return r * solution;
 }
@@ -413,7 +381,7 @@ double layer::get_kappa() const
 }
 
 std::complex<double> layer::evaluate_integral(
-	const std::vector<std::complex<double>>& solution, 
+	const std::vector<std::complex<double>>& solution,
 	const std::function<double(double)>& weight) const
 {
 	const auto nodes = get_nodal_points(this->_elements);
@@ -428,7 +396,7 @@ std::complex<double> layer::evaluate_integral(
 		std::vector<std::complex<double>> indices(n.size());
 		for (size_t ii = 0; ii < n.size(); ii++)
 		{
-			const auto index = std::find(nodes.begin(), nodes.end(), n[ii]) 
+			const auto index = std::find(nodes.begin(), nodes.end(), n[ii])
 				- nodes.begin();
 			indices[ii] = solution[index];
 		}
@@ -444,7 +412,7 @@ inline layer::~layer() {
 
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, double kappa, size_t roots_number,
-	double tolerance, bottom_c bc) :_mu(mu), _rho(rho), _kappa(kappa),
+	double tolerance, bottom_c bc) :_c_44(mu), _c_55(mu), _rho(rho), _kappa(kappa),
 	_tolerance(tolerance), _bc(bc)
 {
 	roots(roots_number);
@@ -452,7 +420,7 @@ layer::layer(const function<double(double)>& mu,
 
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, const std::string& filename,
-	double tolerance, bottom_c bc) :_mu(mu), _rho(rho), _tolerance(tolerance), 
+	double tolerance, bottom_c bc) :_c_44(mu), _c_55(mu), _rho(rho), _tolerance(tolerance),
 	_bc(bc)
 {
 	this->load_from_file(filename);
@@ -469,8 +437,44 @@ layer::layer(const function<double(double)>& mu,
 
 layer::layer(const function<double(double)>& mu,
 	const function<double(double)>& rho, const std::string& filename,
-	const std::vector<boundary_element*>& elements, double tolerance, 
-	bottom_c bc): layer(mu, rho, filename, tolerance, bc)
+	const std::vector<boundary_element*>& elements, double tolerance,
+	bottom_c bc) : layer(mu, rho, filename, tolerance, bc)
+{
+	this->_elements = elements;
+}
+
+layer::layer(const function<double(double)>& c_44,
+	const function<double(double)>& c_55, const function<double(double)>& rho,
+	double kappa, size_t roots_number, double tolerance, bottom_c bc) 
+	: _c_44(c_44), _c_55(c_55), _rho(rho), _kappa(kappa),
+	_tolerance(tolerance), _bc(bc)
+{
+	roots(roots_number);
+}
+
+layer::layer(const function<double(double)>& c_44,
+	const function<double(double)>& c_55, const function<double(double)>& rho,
+	const std::string& filename, double tolerance, bottom_c bc) :_c_44(c_44), 
+	_c_55(c_55), _rho(rho), _tolerance(tolerance),
+	_bc(bc)
+{
+	this->load_from_file(filename);
+}
+
+layer::layer(const function<double(double)>& c_44, 
+	const function<double(double)>& c_55, const function<double(double)>& rho, 
+	double kappa, const std::vector<boundary_element*>& elements, 
+	size_t roots_number, double tolerance, bottom_c bc)
+	: layer(c_44, c_55, rho, kappa, roots_number, tolerance, bc)
+{
+	this->_elements = elements;
+}
+
+layer::layer(const function<double(double)>& c_44, 
+	const function<double(double)>& c_55, const function<double(double)>& rho, 
+	const std::string& filename, 
+	const std::vector<boundary_element*>& elements, double tolerance, bottom_c bc)
+	: layer(c_44, c_55, rho, filename, tolerance, bc)
 {
 	this->_elements = elements;
 }
