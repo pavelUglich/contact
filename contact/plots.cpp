@@ -33,7 +33,7 @@ void addTheCurve(const std::vector<double>& fieldHomogeneous, std::ofstream& str
 	stream << "					};\n";
 }
 
-void plotTheWaveField(const std::map<std::string, std::vector<double>>& vectors, const std::string& fileName,
+void plot_the_wave_field(const std::map<std::string, std::vector<double>>& vectors, const std::string& fileName,
 	double step, double min)
 {
 	std::ofstream stream(fileName);
@@ -80,7 +80,7 @@ void addTheCurve(const std::vector<double>& nodes,
 	stream << " };\n";
 }
 
-void plotTheWaveField(double step,
+void plot_the_wave_field(double step,
 	const std::map<std::string, std::vector<std::complex<double>>>& vectors,
 	const std::string& fileName, double a)
 {
@@ -96,7 +96,7 @@ void plotTheWaveField(double step,
 	stream.close();
 }
 
-void plotTheWaveField(const std::vector<double>& nodes, 
+void plot_the_wave_field(const std::vector<double>& nodes, 
 	const std::map<std::string, std::vector<std::complex<double>>>& vectors, 
 	const std::string& fileName)
 {

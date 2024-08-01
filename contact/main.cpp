@@ -212,6 +212,8 @@ vector<boundary_element*> make_elements(const vector<double>& nodes) {
 }
 
 
+
+
 std::vector<std::complex<double>> get_solution(layer& l, double a, size_t size,
 	double mass = 1.0, double tt = 1.0) {
 	const auto points = make_nodes(size, a);
@@ -235,10 +237,9 @@ std::vector<std::complex<double>> get_solution(layer& l, double a, size_t size,
 	return sol;
 }
 
-void solve_with_constant_elems(layer& l, double a, size_t size,
-	const std::string& file_name, double mass = 1.0, double tt = 1.0)
-{
-	/*
+
+std::complex<double>get_displacement(layer& l, double a, size_t size,
+	double mass = 1.0, double tt = 1.0) {
 	const auto points = make_nodes(size, a);
 	const auto elements = make_elements<constant_element>(points);
 	l.set_elements(elements);
@@ -254,16 +255,19 @@ void solve_with_constant_elems(layer& l, double a, size_t size,
 	}
 	const auto integral = l.evaluate_integral(sol);
 	const auto kappa = l.get_kappa();
-	const auto gamma = tt / (integral - mass * kappa * kappa);
-	std::ranges::transform(sol.begin(), sol.end(), sol.begin(),
-		[gamma](auto x) {return x * gamma; });*/
+	return tt / (integral - mass * kappa * kappa);
+}
+
+void solve_with_constant_elems(layer& l, double a, size_t size,
+	const std::string& file_name, double mass = 1.0, double tt = 1.0)
+{
 	const auto points = make_nodes(size, a);
 	const auto elements = make_elements<constant_element>(points);
 	const auto sol = get_solution(l, a, size, mass, tt);
-	plotTheWaveField(get_nodal_points(elements), { {"red", sol} }, file_name);
+	plot_the_wave_field(get_nodal_points(elements), { {"red", sol} }, file_name);
 }
 
-
+/*
 void solve_with_linear_elems(layer& l, double a, size_t size,
 	const std::string& file_name, double mass = 1.0, double tt = 1.0)
 {
@@ -307,7 +311,7 @@ void solve_with_linear_elems_weighted(layer& l, double a, size_t size,
 	std::ranges::transform(sol.begin(), sol.end(), sol.begin(),
 		[gamma](auto x) {return x * gamma; });
 	plotTheWaveField(nodes, { {"red", sol} }, file_name);
-}
+}*/
 
 int main() {
 	const auto c_44 = [](double x) {return 1.0 + x; };
@@ -320,14 +324,15 @@ int main() {
 	*/
 
 	// Решение контактной задачи
+	/*
 	const auto width = 1.0;
 	const auto kappa = 1.0;
 	const auto n = 20;
 	const auto elements = make_elements<constant_element>(make_nodes(n, width));
 	layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, FREE);
-	const auto solution = get_solution(ll, width, n);
+	const auto solution = get_solution(ll, width, n);*/
 	// волновое поле
-	std::vector<double> x_1(2 * n);
+	/*std::vector<double> x_1(2 * n);
 	const auto h_x = 2 * width / n;
 	const auto h_y = width / n;
 	for (size_t i = 0; i < 2 * n; i++)
@@ -339,6 +344,17 @@ int main() {
 	{
 		x_2[i] = (i + 0.5) * h_y;
 	}
-	surface_plot(x_1, x_2, solution, ll, "wf.txt");
+	surface_plot(x_1, x_2, solution, ll, "wf.txt");*/
+	// АЧХ
+	const auto width = 1.0;
+	const auto n = 20;
+	const auto elements = make_elements<constant_element>(make_nodes(n, width));
+	const double hh = 0.5;
+	for (size_t i = 0; i < 100; i++)
+	{
+		const auto kappa = 1.0;
+		layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, FREE);
+		const auto solution = get_solution(ll, width, n);
+	}
 	system("pause");
 }

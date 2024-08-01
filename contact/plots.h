@@ -39,7 +39,7 @@ void addTheCurve(const std::vector<double>& fieldHomogeneous, std::ofstream& str
 
 
 
-void plotTheWaveField(const std::map<std::string, std::vector<double>>& vectors, const std::string& fileName,
+void plot_the_wave_field(const std::map<std::string, std::vector<double>>& vectors, const std::string& fileName,
                       double step, double min = 0);
 
 
@@ -67,7 +67,7 @@ void addTheCurve(const std::vector<double>& nodes,
  * \param fileName имя файла
  * \param a левая граница
  */
-void plotTheWaveField(double step, const std::map<std::string, std::vector<std::complex<double>>>& vectors,
+void plot_the_wave_field(double step, const std::map<std::string, std::vector<std::complex<double>>>& vectors,
                       const std::string& fileName, double a = 0);
 
 /**
@@ -77,6 +77,6 @@ void plotTheWaveField(double step, const std::map<std::string, std::vector<std::
  * \param fileName имя файла
  * \param a левая граница
  */
-void plotTheWaveField(const std::vector<double>& nodes, 
+void plot_the_wave_field(const std::vector<double>& nodes, 
     const std::map<std::string, std::vector<std::complex<double>>>& vectors, 
     const std::string& fileName);
