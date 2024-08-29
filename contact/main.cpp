@@ -238,7 +238,7 @@ std::vector<std::complex<double>> get_solution(layer& l, double a, size_t size,
 }
 
 
-std::complex<double>get_displacement(layer& l, double a, size_t size,
+std::complex<double> get_displacement(layer& l, double a, size_t size,
 	double mass = 1.0, double tt = 1.0) {
 	const auto points = make_nodes(size, a);
 	const auto elements = make_elements<constant_element>(points);
@@ -346,15 +346,20 @@ int main() {
 	}
 	surface_plot(x_1, x_2, solution, ll, "wf.txt");*/
 	// АЧХ
+	const size_t points = 100;
+	std::vector<std::complex<double>> frequency_response(points);
 	const auto width = 1.0;
 	const auto n = 20;
 	const auto elements = make_elements<constant_element>(make_nodes(n, width));
-	const double hh = 0.5;
-	for (size_t i = 0; i < 100; i++)
+	const double hh = 0.1;
+	for (size_t i = 0; i < points; i++)
 	{
-		const auto kappa = 1.0;
+		const auto kappa = (i + 1) * hh;
 		layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, FREE);
-		const auto solution = get_solution(ll, width, n);
+		const auto solution = get_displacement(ll, width, n);
+		std::cout << kappa << std::endl;
+		frequency_response[i] = solution;
 	}
+	plot_the_wave_field(hh, { {"black", frequency_response} }, "fr.txt", hh);
 	system("pause");
 }
