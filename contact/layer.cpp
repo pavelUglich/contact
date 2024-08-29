@@ -199,7 +199,7 @@ vector<vector<vector<complex<double>>>> layer::row(const vector<double>& nodes,
 	return result;
 }
 
-vector<complex<double>> layer::row(double node, complex<double> root,
+vector<complex<double>> layer::row(double node, complex<double> root, 
 	const function<double(double)>& weight, bool odd) const
 {
 	std::map<double, complex<double>> result;
@@ -235,7 +235,7 @@ vector<complex<double>> layer::get_roots() const
 
 
 
-complex<double> layer::right_part(double xi_1, double xi_2) const
+complex<double> layer::right_part(double xi_1, double xi_2) const 
 {
 	complex<double> result = 0;
 	complex<double> term;
