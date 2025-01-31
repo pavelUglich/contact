@@ -324,13 +324,18 @@ int main() {
 	*/
 
 	// Решение контактной задачи
-	/*
+
 	const auto width = 1.0;
 	const auto kappa = 1.0;
-	const auto n = 20;
-	const auto elements = make_elements<constant_element>(make_nodes(n, width));
-	layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, FREE);
-	const auto solution = get_solution(ll, width, n);*/
+	const auto n = 40;
+	const auto nodes = make_nodes(n, width);
+	const auto elements = make_elements<constant_element>(nodes);
+	layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, CLAMPED);
+	const auto solution = get_solution(ll, width, n);
+	const auto hh = 2.0 * width / n;
+	plot_the_wave_field(hh, { {"black", solution} }, "kappa1_20_cl.txt", -width + hh / 2);
+
+	//*/
 	// волновое поле
 	/*std::vector<double> x_1(2 * n);
 	const auto h_x = 2 * width / n;
@@ -346,7 +351,7 @@ int main() {
 	}
 	surface_plot(x_1, x_2, solution, ll, "wf.txt");*/
 	// АЧХ
-	const size_t points = 100;
+	/* const size_t points = 100;
 	std::vector<std::complex<double>> frequency_response(points);
 	const auto width = 1.0;
 	const auto n = 20;
@@ -360,6 +365,6 @@ int main() {
 		std::cout << kappa << std::endl;
 		frequency_response[i] = solution;
 	}
-	plot_the_wave_field(hh, { {"black", frequency_response} }, "fr.txt", hh);
+	plot_the_wave_field(hh, { {"black", frequency_response} }, "fr.txt", hh);//*/
 	system("pause");
 }
