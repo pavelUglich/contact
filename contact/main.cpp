@@ -314,9 +314,9 @@ void solve_with_linear_elems_weighted(layer& l, double a, size_t size,
 }*/
 
 int main() {
-	const auto c_44 = [](double x) {return 1.0 + x; };
-	const auto c_55 = [](double x) {return 2.0 - x; };
-	const auto rho = [](double x) {return 1.0 + exp(-x); };
+	const auto c_44 = [](double x) {return 1.0 + sin(pi * x); };
+	const auto c_55 = [](double x) {return 2.0 - x; }; //
+	const auto rho = [](double x) {return 1.0 + x; };
 	/*
 		дисперсионные кривые
 		auto ds = dispersional_set<std::function<double(double)>>(10, rho, c_44, c_55, FREE);
@@ -326,14 +326,14 @@ int main() {
 	// Решение контактной задачи
 
 	const auto width = 1.0;
-	const auto kappa = 1.0;
+	const auto kappa = 5.0;
 	const auto n = 40;
 	const auto nodes = make_nodes(n, width);
 	const auto elements = make_elements<constant_element>(nodes);
 	layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, CLAMPED);
 	const auto solution = get_solution(ll, width, n);
 	const auto hh = 2.0 * width / n;
-	plot_the_wave_field(hh, { {"black", solution} }, "kappa1_20_cl.txt", -width + hh / 2);
+	plot_the_wave_field(hh, { {"black", solution} }, "kappa5_free.txt", -width + hh / 2);
 
 	//*/
 	// волновое поле
