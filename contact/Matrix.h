@@ -1,8 +1,7 @@
-#pragma once
+п»ї#pragma once
 #include <vector>
 #include <stdexcept>
 #include <iostream>
-//#import <float.h>
 
 
 template<class T>
@@ -35,24 +34,26 @@ void gauss(std::vector<T>& first, std::vector<T>& second)
 }
 
 template<class T>
-bool equalsZero(std::vector<T>& vec)
+bool equals_zero(const std::vector<T>& vec)
 {
-	for (auto x:vec)
+	/*for (auto x : vec)
 	{
-		if (x!=0)
+		if (x != 0)
 		{
 			return false;
 		}
 	}
-	return true;
+	return true;*/
+	return std::all_of(vec.begin(), vec.end(), [](T x) {return x != 0; });
 }
 
 
 template<class T>
-class Matrix
+class matrix
 {
-	size_t rows, columns; // число строк и столбцов
-	std::vector<std::vector<T>> elements; // вектор элементов
+	size_t rows;
+	size_t columns; // Г·ГЁГ±Г«Г® Г±ГІГ°Г®ГЄ ГЁ Г±ГІГ®Г«ГЎГ¶Г®Гў
+	std::vector<std::vector<T>> elements; // ГўГҐГЄГІГ®Г° ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў
 	void setElements(const std::vector<std::vector<T>>& elements);
 
 public:
@@ -62,17 +63,17 @@ public:
 	size_t getColumns() const;
 
 	/**
-	 * \brief конструктор задаёт размеры квадратной матрицы (все конструкторы
-	 * должны обращаться к конструкторам базового класса)
-	 * \param rows количество строк
-	 * \param columns количество столбцов
+	 * \brief ГЄГ®Г­Г±ГІГ°ГіГЄГІГ®Г° Г§Г Г¤Г ВёГІ Г°Г Г§Г¬ГҐГ°Г» ГЄГўГ Г¤Г°Г ГІГ­Г®Г© Г¬Г ГІГ°ГЁГ¶Г» (ГўГ±ГҐ ГЄГ®Г­Г±ГІГ°ГіГЄГІГ®Г°Г»
+	 * Г¤Г®Г«Г¦Г­Г» Г®ГЎГ°Г Г№Г ГІГјГ±Гї ГЄ ГЄГ®Г­Г±ГІГ°ГіГЄГІГ®Г°Г Г¬ ГЎГ Г§Г®ГўГ®ГЈГ® ГЄГ«Г Г±Г±Г )
+	 * \param rows ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ°Г®ГЄ
+	 * \param columns ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г±ГІГ®Г«ГЎГ¶Г®Гў
 	 */
-	Matrix(size_t rows = 0, size_t columns = 0);
-	Matrix(size_t rows, size_t columns, const T& value);
-	Matrix(size_t rows, size_t columns, 
+	matrix(size_t rows = 0, size_t columns = 0);
+	matrix(size_t rows, size_t columns, const T& value);
+	matrix(size_t rows, size_t columns,
 		const std::vector<std::vector<T>>& elements);
 
-	friend std::ostream& operator<<(std::ostream& os, const Matrix& matrix)
+	friend std::ostream& operator<<(std::ostream& os, const matrix& matrix)
 	{
 		for (auto element : matrix.elements)
 		{
@@ -88,67 +89,67 @@ public:
 	const std::vector<T>& operator[](size_t i) const;
 	std::vector<T>& operator[](size_t i);
 
-	Matrix& operator+=(const Matrix& that);
-	Matrix operator+(const Matrix& that) const;
+	matrix& operator+=(const matrix& that);
+	matrix operator+(const matrix& that) const;
 
-	Matrix& operator-=(const Matrix& that);
-	Matrix operator-(const Matrix& that) const;
+	matrix& operator-=(const matrix& that);
+	matrix operator-(const matrix& that) const;
 
-	Matrix& operator*=(const Matrix& that);
-	Matrix operator*(const Matrix& that) const;
+	matrix& operator*=(const matrix& that);
+	matrix operator*(const matrix& that) const;
 
-	Matrix transpose() const;
+	matrix transpose() const;
 
 	size_t rang() const;
 };
 
 template <class T>
-size_t Matrix<T>::getRows() const
+size_t matrix<T>::getRows() const
 {
 	return rows;
 }
 
 template <class T>
-size_t Matrix<T>::getColumns() const
+size_t matrix<T>::getColumns() const
 {
 	return  columns;
 }
 
 template <class T>
-Matrix<T>::Matrix(size_t rows, size_t columns) : rows(rows),
+matrix<T>::matrix(size_t rows, size_t columns) : rows(rows),
 columns(columns)
 {
 	elements.resize(rows, std::vector<T>(columns));
 }
 
 template <class T>
-Matrix<T>::Matrix(size_t rows, size_t columns, const T& value) :
-	Matrix(rows, columns)
+matrix<T>::matrix(size_t rows, size_t columns, const T& value) :
+	matrix(rows, columns)
 {
 	elements.resize(rows, std::vector<T>(columns, value));
 }
 
 template <class T>
-Matrix<T>::Matrix(size_t rows, size_t columns,
-	const std::vector<std::vector<T>>& elements) : Matrix(rows, columns)
+matrix<T>::matrix(size_t rows, size_t columns,
+	const std::vector<std::vector<T>>& elements) : matrix(rows, columns)
 {
 	setElements(elements);
 }
 
 template <class T>
-const std::vector<T>& Matrix<T>::operator[](size_t i) const
+const std::vector<T>& matrix<T>::operator[](size_t i) const
 {
 	return elements[i];
 }
 
 template <class T>
-std::vector<T>& Matrix<T>::operator[](size_t i)
+std::vector<T>& matrix<T>::operator[](size_t i)
 {
 	return elements[i];
 }
 
 template <class T>
-Matrix<T>& Matrix<T>::operator+=(const Matrix& that)
+matrix<T>& matrix<T>::operator+=(const matrix& that)
 {
 	if (this->rows != that.rows || this->columns != that.columns)
 	{
@@ -165,14 +166,14 @@ Matrix<T>& Matrix<T>::operator+=(const Matrix& that)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator+(const Matrix& that) const
+matrix<T> matrix<T>::operator+(const matrix& that) const
 {
 	auto temp(*this);
 	return temp += that;
 }
 
 template <class T>
-Matrix<T>& Matrix<T>::operator-=(const Matrix& that)
+matrix<T>& matrix<T>::operator-=(const matrix& that)
 {
 	if (this->rows != that.rows || this->columns != that.columns)
 	{
@@ -189,14 +190,14 @@ Matrix<T>& Matrix<T>::operator-=(const Matrix& that)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator-(const Matrix& that) const
+matrix<T> matrix<T>::operator-(const matrix& that) const
 {
 	auto temp(*this);
 	return temp -= that;
 }
 
 template <class T>
-Matrix<T>& Matrix<T>::operator*=(const Matrix& that)
+matrix<T>& matrix<T>::operator*=(const matrix& that)
 {
 	if (this->columns != that.rows)
 	{
@@ -220,16 +221,16 @@ Matrix<T>& Matrix<T>::operator*=(const Matrix& that)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator*(const Matrix& that) const
+matrix<T> matrix<T>::operator*(const matrix& that) const
 {
 	auto temp(*this);
 	return temp *= that;
 }
 
 template<class T>
-Matrix<T> Matrix<T>::transpose() const
+matrix<T> matrix<T>::transpose() const
 {
-	Matrix<T> result(this->getColumns(), this->getRows());
+	matrix<T> result(this->getColumns(), this->getRows());
 	for (size_t i = 0; i < this->getRows(); i++)
 	{
 		for (size_t j = 0; j < this->getColumns(); j++)
@@ -241,7 +242,7 @@ Matrix<T> Matrix<T>::transpose() const
 }
 
 template <class T>
-size_t Matrix<T>::rang() const
+size_t matrix<T>::rang() const
 {
 	auto result = rows < columns ? rows : columns;
 	auto temp = elements;
@@ -252,7 +253,7 @@ size_t Matrix<T>::rang() const
 			gauss(temp[i], temp[j]);
 		}
 	}
-	while (equalsZero(temp[result - 1]))
+	while (equals_zero(temp[result - 1]))
 	{
 		--result;
 	}
@@ -260,7 +261,7 @@ size_t Matrix<T>::rang() const
 }
 
 template <class T>
-void Matrix<T>::setElements(const std::vector<std::vector<T>>& elements)
+void matrix<T>::setElements(const std::vector<std::vector<T>>& elements)
 {
 	if (elements.size() != rows)
 	{
@@ -277,8 +278,7 @@ void Matrix<T>::setElements(const std::vector<std::vector<T>>& elements)
 }
 
 template <class T>
-std::vector<std::vector<T>> Matrix<T>::getElements() const
+std::vector<std::vector<T>> matrix<T>::getElements() const
 {
 	return elements;
 }
-

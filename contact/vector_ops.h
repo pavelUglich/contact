@@ -4,7 +4,7 @@
 #include <complex>
 #include <vector>
 
-#include "SquareMatrix.h"
+#include "square_matrix.h"
 
 template<class T>
 std::vector<T> operator+(const std::vector<T>& left, 
@@ -114,7 +114,7 @@ std::vector<T> operator*(
 
 template<class T>
 std::vector<T> operator*(
-	const SquareMatrix<T>& matrix,
+	const square_matrix<T>& matrix,
 	const std::vector<T>& vector)
 {
 	return matrix.getElements() * vector;

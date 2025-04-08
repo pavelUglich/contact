@@ -221,7 +221,7 @@ std::vector<std::complex<double>> get_solution(layer& l, double a, size_t size,
 	l.set_elements(elements);
 	const auto weight = [a](double x) {return 1.0 / sqrt(a * a - x * x); };
 	const auto m = l.matrix(weight);
-	const auto matrix = SquareMatrix<complex<double>>(m.size(), m);
+	const auto matrix = square_matrix<complex<double>>(m.size(), m);
 	auto sol = matrix.linSolve(vector<complex<double>>(m.size(), { 1,0 }));
 	const auto lengths = l.lengths();
 	const auto nodes = get_nodal_points(elements);
@@ -245,7 +245,7 @@ std::complex<double> get_displacement(layer& l, double a, size_t size,
 	l.set_elements(elements);
 	const auto weight = [a](double x) {return 1.0 / sqrt(a * a - x * x); };
 	const auto m = l.matrix(weight);
-	const auto matrix = SquareMatrix<complex<double>>(m.size(), m);
+	const auto matrix = square_matrix<complex<double>>(m.size(), m);
 	auto sol = matrix.linSolve(vector<complex<double>>(m.size(), { 1,0 }));
 	const auto lengths = l.lengths();
 	const auto nodes = get_nodal_points(elements);
@@ -324,20 +324,22 @@ int main() {
 	*/
 
 	// Решение контактной задачи
-
+	/*
 	const auto width = 1.0;
 	const auto kappa = 5.0;
 	const auto n = 40;
 	const auto nodes = make_nodes(n, width);
 	const auto elements = make_elements<constant_element>(nodes);
-	layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, CLAMPED);
+	/*layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, FREE);
 	const auto solution = get_solution(ll, width, n);
+	/*
 	const auto hh = 2.0 * width / n;
-	plot_the_wave_field(hh, { {"black", solution} }, "kappa5_free.txt", -width + hh / 2);
+	plot_the_wave_field(hh, { {"black", solution} }, "kappa5.txt", -width + hh / 2);*/
 
-	//*/
+	//
 	// волновое поле
-	/*std::vector<double> x_1(2 * n);
+	/*
+	std::vector<double> x_1(2 * n);
 	const auto h_x = 2 * width / n;
 	const auto h_y = width / n;
 	for (size_t i = 0; i < 2 * n; i++)
@@ -349,14 +351,15 @@ int main() {
 	{
 		x_2[i] = (i + 0.5) * h_y;
 	}
-	surface_plot(x_1, x_2, solution, ll, "wf.txt");*/
+	surface_plot(x_1, x_2, solution, ll, "wf.txt");
+	*/
 	// АЧХ
-	/* const size_t points = 100;
+	const size_t points = 100;
 	std::vector<std::complex<double>> frequency_response(points);
 	const auto width = 1.0;
 	const auto n = 20;
 	const auto elements = make_elements<constant_element>(make_nodes(n, width));
-	const double hh = 0.1;
+	const double hh = 0.09;
 	for (size_t i = 0; i < points; i++)
 	{
 		const auto kappa = (i + 1) * hh;

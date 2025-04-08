@@ -146,11 +146,11 @@
     <ClInclude Include="layer.hpp" />
     <ClInclude Include="linear_element.h" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="Matrix.h" />
+    <ClInclude Include="matrix.h" />
     <ClInclude Include="OdeSolver.h" />
     <ClInclude Include="plots.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SquareMatrix.h" />
+    <ClInclude Include="square_matrix.h" />
     <ClInclude Include="vector_ops.h" />
   </ItemGroup>
   <ItemGroup>
