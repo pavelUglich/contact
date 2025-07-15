@@ -314,9 +314,14 @@ void solve_with_linear_elems_weighted(layer& l, double a, size_t size,
 }*/
 
 int main() {
+	/*
 	const auto c_44 = [](double x) {return 1.0 + sin(pi * x); };
 	const auto c_55 = [](double x) {return 2.0 - x; }; //
-	const auto rho = [](double x) {return 1.0 + x; };
+	const auto rho = [](double x) {return 1.0 + x; };//*/
+	
+	const auto c_44 = [](double x) {return 1.0 + 2.0 / pi; };
+	const auto c_55 = [](double x) {return 1.5; }; //
+	const auto rho = [](double x) {return 1.5; };
 	/*
 		дисперсионные кривые
 		auto ds = dispersional_set<std::function<double(double)>>(10, rho, c_44, c_55, FREE);
@@ -330,12 +335,12 @@ int main() {
 	const auto n = 40;
 	const auto nodes = make_nodes(n, width);
 	const auto elements = make_elements<constant_element>(nodes);
-	/*layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, FREE);
+	layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, FREE);
 	const auto solution = get_solution(ll, width, n);
-	/*
+	
 	const auto hh = 2.0 * width / n;
-	plot_the_wave_field(hh, { {"black", solution} }, "kappa5.txt", -width + hh / 2);*/
-
+	plot_the_wave_field(hh, { {"black", solution} }, "kappa5.txt", -width + hh / 2);
+	*/
 	//
 	// волновое поле
 	/*
@@ -354,16 +359,17 @@ int main() {
 	surface_plot(x_1, x_2, solution, ll, "wf.txt");
 	*/
 	// АЧХ
+	
 	const size_t points = 100;
 	std::vector<std::complex<double>> frequency_response(points);
 	const auto width = 1.0;
 	const auto n = 20;
 	const auto elements = make_elements<constant_element>(make_nodes(n, width));
-	const double hh = 0.09;
+	const double hh = 0.06;
 	for (size_t i = 0; i < points; i++)
 	{
 		const auto kappa = (i + 1) * hh;
-		layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, FREE);
+		layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6);
 		const auto solution = get_displacement(ll, width, n);
 		std::cout << kappa << std::endl;
 		frequency_response[i] = solution;

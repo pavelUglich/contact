@@ -52,12 +52,12 @@ void addTheCurve(double step,
 	const std::vector<std::complex<double>>& fieldHomogeneous, 
 	std::ofstream& stream, const std::string& color, double a)
 {
-	stream << " \\addplot[line width = 0.25mm, smooth, ";
+	stream << " \\addplot[line width = 0.4mm, smooth, ";
 	stream << color;
 	stream << "] plot coordinates{\n";
 	showVector(step, fieldHomogeneous, [](auto x) { return x.real(); }, stream, a);
 	stream << " };\n";
-	stream << " \\addplot[smooth, dashed,";
+	stream << " \\addplot[line width = 0.4mm, smooth, dashed,";
 	stream << color;
 	stream << "] plot coordinates{\n";
 	showVector(step, fieldHomogeneous, [](auto x) { return x.imag(); }, stream, a);
@@ -85,7 +85,7 @@ void plot_the_wave_field(double step,
 	const std::string& fileName, double a)
 {
 	std::ofstream stream(fileName);
-	stream << "\\begin{tikzpicture}[scale=1.1]\\tiny\n";
+	stream << "\\begin{tikzpicture}[scale=1.1]\\footnotesize\n";
 	stream << "\\begin{axis}[grid]\n";
 	for (const auto& item : vectors)
 	{
