@@ -34,11 +34,11 @@ void layer::roots(size_t roots_number) {
 	_roots.resize(roots_number);
 	_residues.resize(roots_number);
 	double a = 1.5 * _kappa;
+	auto f_a = equation({ a, 0 });
 	double step = a / 10;
 	auto b = a - step;
 	size_t counter = 0;
 	for (size_t i = 0; i < 10; i++) {
-		const auto f_a = equation({ a, 0 });
 		const auto f_b = equation({ b, 0 });
 		if (f_a * f_b < 0) {
 			_roots[counter] = newton_method({ std::midpoint(a, b),0 });
@@ -47,13 +47,14 @@ void layer::roots(size_t roots_number) {
 			++counter;
 		}
 		a = b;
+		f_a = f_b;
 		b -= step;
 	}
 
 	a = 0;
+	f_a = equation({ 0, a });
 	b = step;
-	while (true) {
-		const auto f_a = equation({ 0, a });
+	while (true) {		
 		const auto f_b = equation({ 0, b });
 		if (f_a * f_b < 0) {
 			_roots[counter] = newton_method({ 0, std::midpoint(a, b) });
@@ -62,6 +63,7 @@ void layer::roots(size_t roots_number) {
 			++counter;
 		}
 		a = b;
+		f_a = f_b;
 		b += step;
 		if (counter >= _roots.size())
 			break;

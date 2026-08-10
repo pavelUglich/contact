@@ -7,6 +7,60 @@
 
 const double pi = acos(-1.0);
 
+
+const double L = 4.065e-6;
+const auto first_law = [](double x) {return 210.0 + 430.0 * x / L; };
+
+const double x2_star = 0.9 * L;
+const double A2 = (-40000.0 + 295900.0 / 8.1) / L / L / L;
+const double B2 = -29590 / (8.1 * L * L);
+
+const auto second_law = [=](double x) {
+	const auto xi = x - x2_star;
+	return A2 * xi * xi * xi + B2 * xi * xi + 640;
+	};
+
+const double x3_star = 0.7 * L;
+const double A3 = (-40000.0 + 2279700.0 / 44.1) / 27.0 / L / L / L;
+const double B3 = -25330.0 / 44.1 / L / L;
+const auto third_law = [=](double x) {
+	const auto xi = x - x3_star;
+	return A3 * xi * xi * xi + B3 * xi * xi + 640;
+	};
+
+const double nu = 0.3;
+const double rho = 7.8e3;
+
+const auto mu_1 = [=](double x) {
+	const double xi = x * L;
+	return first_law(xi) / 2.0 / (1.0 + nu);
+	};
+
+const auto mu_2 = [=](double x) {
+	const double xi = x * L;
+	return second_law(xi) / 2.0 / (1.0 + nu);
+	};
+
+const auto mu_3 = [=](double x) {
+	const double xi = x * L;
+	return third_law(xi) / 2.0 / (1.0 + nu);
+	};
+
+const auto mu_0 = mu_1(0.0);
+
+const auto mu_1_dimentionless = [=](double x) {
+	return mu_1(x) / mu_0;
+	};
+
+const auto mu_2_dimentionless = [=](double x) {
+	return mu_2(x) / mu_0;
+	};
+
+const auto mu_3_dimentionless = [=](double x) {
+	return mu_3(x) / mu_0;
+	};
+
+
 /// <summary>
 /// построение дисперсионного множества
 /// </summary>
@@ -22,7 +76,7 @@ map<double, vector<complex<double>>> dispersional_set(
 	map<double, vector<complex<double>>> result;
 	double kappa = 0.1;
 	const double step = 0.05;
-	layer l = { c_44, c_55, rho, kappa, 5, 1.0e-6, bc };
+	layer l = { c_44, c_55, rho, kappa, 5, 1.0e-5, bc };
 	auto roots = l.get_roots();
 	while (kappa < the_highest_frequency)
 	{
@@ -71,7 +125,7 @@ void plot_the_dispersional_curves(map<double,
 }
 
 /// <summary>
-/// создение текстового файла для построения лиаграммы
+/// создание текстового файла для построения диаграммы
 /// </summary>
 /// <param name="x_1">вектор координат по x</param>
 /// <param name="x_2">вектор координат по y</param>
@@ -212,8 +266,6 @@ vector<boundary_element*> make_elements(const vector<double>& nodes) {
 }
 
 
-
-
 std::vector<std::complex<double>> get_solution(layer& l, double a, size_t size,
 	double mass = 1.0, double tt = 1.0) {
 	const auto points = make_nodes(size, a);
@@ -259,121 +311,60 @@ std::complex<double> get_displacement(layer& l, double a, size_t size,
 }
 
 void solve_with_constant_elems(layer& l, double a, size_t size,
-	const std::string& file_name, double mass = 1.0, double tt = 1.0)
+	const std::string& file_name, double mass = 1.0, double tt = 1.0, const std::string& colour = "red")
 {
 	const auto points = make_nodes(size, a);
 	const auto elements = make_elements<constant_element>(points);
 	const auto sol = get_solution(l, a, size, mass, tt);
-	plot_the_wave_field(get_nodal_points(elements), { {"red", sol} }, file_name);
+	plot_the_wave_field(get_nodal_points(elements), { {colour, sol} }, file_name);
 }
 
-/*
-void solve_with_linear_elems(layer& l, double a, size_t size,
-	const std::string& file_name, double mass = 1.0, double tt = 1.0)
-{
-	const auto points = make_nodes(size, a);
-	const auto elements = make_elements<linear_element>(points);
-	l.set_elements(elements);
-	const auto m = l.matrix();
-	const auto matrix = SquareMatrix<complex<double>>(m.size(), m);
-	auto sol = matrix.linSolve(vector<complex<double>>(m.size(), { 1,0 }));
-	const auto lengths = l.lengths();
-	const auto integral = l.evaluate_integral(sol);
-	const auto kappa = l.get_kappa();
-	const auto nodes = get_nodal_points(elements);
-	const auto gamma = tt / (integral - mass * kappa * kappa);
-	std::ranges::transform(sol.begin(), sol.end(), sol.begin(),
-		[gamma](auto x) {return x * gamma; });
-	plotTheWaveField(get_nodal_points(elements), { {"red", sol} }, file_name);
-}
-
-void solve_with_linear_elems_weighted(layer& l, double a, size_t size,
-	const std::string& file_name, double mass = 1.0, double tt = 1.0)
-{
-	const auto points = make_nodes(size, a);
-	const auto elements = make_elements<linear_element>(points);
-	l.set_elements(elements);
-	const auto weight = [a](double x) {return a * a - x * x; };
-	const auto m = l.matrix(weight);
-	const auto matrix = SquareMatrix<complex<double>>(m.size(), m);
-	auto sol = matrix.linSolve(vector<complex<double>>(m.size(), { 1,0 }));
-	const auto lengths = l.lengths();
-	const auto integral = l.evaluate_integral(sol, weight);
-	const auto kappa = l.get_kappa();
-	auto nodes = get_nodal_points(elements);
-	const auto gamma = tt / (integral - mass * kappa * kappa);
-	sol.erase(sol.begin()); sol.erase(sol.end() - 1);
-	nodes.erase(nodes.begin()); nodes.erase(nodes.end() - 1);
-	for (size_t i = 0; i < nodes.size(); i++)
-	{
-		sol[i] *= weight(nodes[i]);
-	}
-	std::ranges::transform(sol.begin(), sol.end(), sol.begin(),
-		[gamma](auto x) {return x * gamma; });
-	plotTheWaveField(nodes, { {"red", sol} }, file_name);
-}*/
+const std::vector<double> T2 = { 0.17 / 9 / pi * 1e-3, 3.25 / 9 / pi * 1e-3, 7.0 / 9 / pi * 1e-3 };
+const std::vector<std::string> colours = { "black", "red", "blue" };
 
 int main() {
-	/*
-	const auto c_44 = [](double x) {return 1.0 + sin(pi * x); };
-	const auto c_55 = [](double x) {return 2.0 - x; }; //
-	const auto rho = [](double x) {return 1.0 + x; };//*/
 	
-	const auto c_44 = [](double x) {return 1.0 + 2.0 / pi; };
-	const auto c_55 = [](double x) {return 1.5; }; //
-	const auto rho = [](double x) {return 1.5; };
-	/*
-		дисперсионные кривые
-		auto ds = dispersional_set<std::function<double(double)>>(10, rho, c_44, c_55, FREE);
-		plot_the_dispersional_curves(ds, "ds.txt");
-	*/
+	{
+		const auto c_44 = [](double x) {return mu_1_dimentionless(x); };
+		const auto c_55 = [](double x) {return mu_1_dimentionless(x); }; //
+		const auto density = [](double x) {return 1.0; };
+		// дисперсионные кривые
+		// auto ds = dispersional_set<std::function<double(double)>>(9, density, c_44, c_55);
+		// plot_the_dispersional_curves(ds, "ds_law1.txt");
+		layer l = { c_44, density, 6.0 };
+		for (size_t i = 0; i < T2.size(); i++)
+		{
+			solve_with_constant_elems(l, 1.0, 20, "law" + std::to_string(i) + ".txt", 1.0, T2[i]);
+		}
+	}
+/*
+	{
+		const auto c_44 = [](double x) {return mu_2_dimentionless(x); };
+		const auto c_55 = [](double x) {return mu_2_dimentionless(x); }; //
+		const auto density = [](double x) {return 1.0; };
+		//	дисперсионные кривые
+		// auto ds = dispersional_set<std::function<double(double)>>(9, density, c_44, c_55);
+		// plot_the_dispersional_curves(ds, "ds_law2.txt");
+		layer l = { c_44, density, 4.0 };
+		for (size_t i = 0; i < T2.size(); i++)
+		{
+			solve_with_constant_elems(l, 1.0, 20, "law" + std::to_string(i) + ".txt", 1.0, T2[i]);
+		}
 
-	// Решение контактной задачи
+	}*/
 	/*
-	const auto width = 1.0;
-	const auto kappa = 5.0;
-	const auto n = 40;
-	const auto nodes = make_nodes(n, width);
-	const auto elements = make_elements<constant_element>(nodes);
-	layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6, FREE);
-	const auto solution = get_solution(ll, width, n);
-	
-	const auto hh = 2.0 * width / n;
-	plot_the_wave_field(hh, { {"black", solution} }, "kappa5.txt", -width + hh / 2);
-	*/
-	//
-	// волновое поле
-	/*
-	std::vector<double> x_1(2 * n);
-	const auto h_x = 2 * width / n;
-	const auto h_y = width / n;
-	for (size_t i = 0; i < 2 * n; i++)
 	{
-		x_1[i] = (i + 0.5) * h_x;
-	}
-	std::vector<double> x_2(n);
-	for (size_t i = 0; i < n; i++)
-	{
-		x_2[i] = (i + 0.5) * h_y;
-	}
-	surface_plot(x_1, x_2, solution, ll, "wf.txt");
-	*/
-	// АЧХ
-	
-	const size_t points = 100;
-	std::vector<std::complex<double>> frequency_response(points);
-	const auto width = 1.0;
-	const auto n = 20;
-	const auto elements = make_elements<constant_element>(make_nodes(n, width));
-	const double hh = 0.06;
-	for (size_t i = 0; i < points; i++)
-	{
-		const auto kappa = (i + 1) * hh;
-		layer ll(c_44, c_55, rho, kappa, elements, 50, 1.0e-6);
-		const auto solution = get_displacement(ll, width, n);
-		std::cout << kappa << std::endl;
-		frequency_response[i] = solution;
-	}
-	plot_the_wave_field(hh, { {"black", frequency_response} }, "fr.txt", hh);//*/
-	system("pause");
+		const auto c_44 = [](double x) {return mu_3_dimentionless(x); };
+		const auto c_55 = [](double x) {return mu_3_dimentionless(x); }; //
+		const auto density = [](double x) {return 1.0; };
+		layer l = { c_44, density, 7.0 };
+		for (size_t i = 0; i < T2.size(); i++)
+		{
+			solve_with_constant_elems(l, 1.0, 20, "law" + std::to_string(i) + ".txt", 1.0, T2[i], colours[i]);
+		}
+
+		//	дисперсионные кривые
+		//auto ds = dispersional_set<std::function<double(double)>>(9, density, c_44, c_55);
+		//plot_the_dispersional_curves(ds, "ds_law3.txt");
+	}//*/
 }
