@@ -319,7 +319,7 @@ void solve_with_constant_elems(layer& l, double a, size_t size,
 	plot_the_wave_field(get_nodal_points(elements), { {colour, sol} }, file_name);
 }
 
-const std::vector<double> T2 = { 0.17 / 9 / pi * 1e-3, 3.25 / 9 / pi * 1e-3, 7.0 / 9 / pi * 1e-3 };
+const std::vector<double> T2 = { 6.0 * 1.e-3, 11.0 * 1.e-3, 25.0 * 1.e-3 };
 const std::vector<std::string> colours = { "black", "red", "blue" };
 
 int main() {
@@ -331,13 +331,13 @@ int main() {
 		// дисперсионные кривые
 		// auto ds = dispersional_set<std::function<double(double)>>(9, density, c_44, c_55);
 		// plot_the_dispersional_curves(ds, "ds_law1.txt");
-		layer l = { c_44, density, 6.0 };
+		layer l = { c_44, density, 4.0 };
 		for (size_t i = 0; i < T2.size(); i++)
 		{
-			solve_with_constant_elems(l, 1.0, 20, "law" + std::to_string(i) + ".txt", 1.0, T2[i]);
+			solve_with_constant_elems(l, 1.0, 20, "law1" + std::to_string(i) + ".txt", 1.0, T2[i]);
 		}
-	}
-/*
+	}//*/
+
 	{
 		const auto c_44 = [](double x) {return mu_2_dimentionless(x); };
 		const auto c_55 = [](double x) {return mu_2_dimentionless(x); }; //
@@ -348,19 +348,19 @@ int main() {
 		layer l = { c_44, density, 4.0 };
 		for (size_t i = 0; i < T2.size(); i++)
 		{
-			solve_with_constant_elems(l, 1.0, 20, "law" + std::to_string(i) + ".txt", 1.0, T2[i]);
+			solve_with_constant_elems(l, 1.0, 20, "law2" + std::to_string(i) + ".txt", 1.0, T2[i]);
 		}
 
-	}*/
-	/*
+	}//*/
+	
 	{
 		const auto c_44 = [](double x) {return mu_3_dimentionless(x); };
 		const auto c_55 = [](double x) {return mu_3_dimentionless(x); }; //
 		const auto density = [](double x) {return 1.0; };
-		layer l = { c_44, density, 7.0 };
+		layer l = { c_44, density, 5.0 };
 		for (size_t i = 0; i < T2.size(); i++)
 		{
-			solve_with_constant_elems(l, 1.0, 20, "law" + std::to_string(i) + ".txt", 1.0, T2[i], colours[i]);
+			solve_with_constant_elems(l, 1.0, 20, "law3" + std::to_string(i) + ".txt", 1.0, T2[i], colours[i]);
 		}
 
 		//	дисперсионные кривые
